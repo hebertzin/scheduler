@@ -15,6 +15,6 @@ func AppointmentGroupRouter(router *gin.Engine, db *gorm.DB, logger *logrus.Logg
 	{
 		v1.GET("/appointments/:id/professional", middlewares.ValidateParamRequest(), appointmentFactory.GetAllAppointmentsByProfessionalId)
 		v1.GET("/appointments/:id", middlewares.ValidateParamRequest(), appointmentFactory.GetAppointmentById)
-		v1.POST("/appointments", middlewares.ValidateParamRequest(), appointmentFactory.Add)
+		v1.POST("/appointments", appointmentFactory.Add)
 	}
 }

@@ -14,6 +14,6 @@ func ProfessionalAvailabilityGroupRouter(router *gin.Engine, db *gorm.DB, logger
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/availability/:id/professional", middlewares.ValidateParamRequest(), professionalsAvailabilityFactory.GetProfessionalAvailabilityById)
-		v1.POST("/availability", middlewares.ValidateParamRequest(), professionalsAvailabilityFactory.Add)
+		v1.POST("/availability", professionalsAvailabilityFactory.Add)
 	}
 }
