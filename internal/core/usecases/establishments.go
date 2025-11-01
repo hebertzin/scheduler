@@ -17,11 +17,12 @@ func NewEstablishmentUseCase(repository domain.EstablishmentRepository, logger *
 	return &EstablishmentUserUseCase{repository: repository, logger: logger}
 }
 
-func (s *EstablishmentUserUseCase) FindEstablishmentById(ctx context.Context, id string) (*domain.Establishment, *core.Exception) {
-	establishment, err := s.repository.FindEstablishmentById(ctx, id)
+func (s *EstablishmentUserUseCase) FindEstablishmentById(ctx context.Context, establishmentId string) (*domain.Establishment, *core.Exception) {
+	establishment, err := s.repository.FindEstablishmentById(ctx, establishmentId)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Error finding establishment"), core.WithError(err))
+		return nil, core.Unexpected(core.WithMessage("error finding establishment"), core.WithError(err))
 	}
+
 	return establishment, nil
 }
 
@@ -30,29 +31,33 @@ func (s *EstablishmentUserUseCase) Add(ctx context.Context, payload *domain.Esta
 	if err != nil {
 		return nil, core.Unexpected()
 	}
+
 	return establishment, nil
 }
 
-func (s *EstablishmentUserUseCase) GetAllProfessionalsByEstablishmentId(ctx context.Context, establishment_id string) ([]domain.Professionals, *core.Exception) {
-	professionails, err := s.repository.GetAllProfessionalsByEstablishmentId(ctx, establishment_id)
+func (s *EstablishmentUserUseCase) GetAllProfessionalsByEstablishmentId(ctx context.Context, establishmentId string) ([]domain.Professionals, *core.Exception) {
+	professionals, err := s.repository.GetAllProfessionalsByEstablishmentId(ctx, establishmentId)
 	if err != nil {
 		return nil, core.Unexpected()
 	}
-	return professionails, nil
+
+	return professionals, nil
 }
 
-func (s *EstablishmentUserUseCase) UpdateEstablishmentById(ctx context.Context, establishment_id string, establishmentData *domain.Establishment) (*domain.Establishment, *core.Exception) {
-	establishment, err := s.repository.UpdateEstablishmentById(ctx, establishment_id, establishmentData)
+func (s *EstablishmentUserUseCase) UpdateEstablishmentById(ctx context.Context, establishmentId string, establishmentData *domain.Establishment) (*domain.Establishment, *core.Exception) {
+	establishment, err := s.repository.UpdateEstablishmentById(ctx, establishmentId, establishmentData)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Some error has been ocurred trying update a establishment"))
+		return nil, core.Unexpected(core.WithMessage("some error has been occurred trying update a establishment"))
 	}
+
 	return establishment, nil
 }
 
-func (s *EstablishmentUserUseCase) GetEstablishmentReport(ctx context.Context, establishment_id string) (*domain.EstablishmentReport, *core.Exception) {
-	stats, err := s.repository.GetEstablishmentReport(ctx, establishment_id)
+func (s *EstablishmentUserUseCase) GetEstablishmentReport(ctx context.Context, establishmentId string) (*domain.EstablishmentReport, *core.Exception) {
+	stats, err := s.repository.GetEstablishmentReport(ctx, establishmentId)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Some error has been ocurred trying update a establishment"))
+		return nil, core.Unexpected(core.WithMessage("some error has been occurred trying update a establishment"))
 	}
+
 	return stats, nil
 }
