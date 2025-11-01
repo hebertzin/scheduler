@@ -46,8 +46,8 @@ func (s *AccountUseCase) Add(ctx context.Context, payload *domain.Account) (*dom
 	return a, nil
 }
 
-func (s *AccountUseCase) FindAccountById(ctx context.Context, id string) (*domain.Account, *core.Exception) {
-	account, err := s.repository.FindAccountById(ctx, id)
+func (s *AccountUseCase) FindAccountById(ctx context.Context, accountId string) (*domain.Account, *core.Exception) {
+	account, err := s.repository.FindAccountById(ctx, accountId)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("error finding account"), core.WithError(err))
 	}
@@ -64,8 +64,8 @@ func (s *AccountUseCase) FindAllAccounts(ctx context.Context) ([]domain.Account,
 	return account, nil
 }
 
-func (s *AccountUseCase) FindAllEstablishmentsByAccountId(ctx context.Context, account_id string) ([]domain.Establishment, *core.Exception) {
-	establishments, err := s.repository.FindAllEstablishmentsByAccountId(ctx, account_id)
+func (s *AccountUseCase) FindAllEstablishmentsByAccountId(ctx context.Context, accountId string) ([]domain.Establishment, *core.Exception) {
+	establishments, err := s.repository.FindAllEstablishmentsByAccountId(ctx, accountId)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("some error has been ocurred"))
 	}
