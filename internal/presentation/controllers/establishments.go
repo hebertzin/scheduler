@@ -63,7 +63,7 @@ func (h *EstablishmentHandler) Add(ctx *gin.Context) {
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusCreated, "Establishment created successfully", establishment)
+	h.RespondWithSuccess(ctx, http.StatusCreated, "establishment created successfully", establishment)
 }
 
 // FindEstablishmentById godoc
@@ -85,7 +85,7 @@ func (h *EstablishmentHandler) FindEstablishmentById(ctx *gin.Context) {
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusOK, "Establishment found successfully", establishment)
+	h.RespondWithSuccess(ctx, http.StatusOK, "establishment found successfully", establishment)
 }
 
 // GetAllProfessinalsByEstablishmentId godoc
@@ -106,7 +106,7 @@ func (h *EstablishmentHandler) GetAllProfessinalsByEstablishmentId(ctx *gin.Cont
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
 	}
-	h.RespondWithSuccess(ctx, http.StatusOK, "Professionals found successfully", professionals)
+	h.RespondWithSuccess(ctx, http.StatusOK, "professionals found successfully", professionals)
 }
 
 // UpdateEstablishmentById godoc
@@ -128,7 +128,7 @@ func (h *EstablishmentHandler) UpdateEstablishmentById(ctx *gin.Context) {
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusOK, "Establishment update successfully", establishments)
+	h.RespondWithSuccess(ctx, http.StatusOK, "establishment update successfully", establishments)
 }
 
 // GetEstablishmentReport godoc
@@ -143,12 +143,12 @@ func (h *EstablishmentHandler) UpdateEstablishmentById(ctx *gin.Context) {
 // @Failure      500  {object}  domain.HttpResponse  "Internal Server Error"
 // @Router       /establishments/:id/report [get]
 func (h *EstablishmentHandler) GetEstablishmentReport(ctx *gin.Context) {
-	establishment_id := ctx.Param("id")
-	establishmentReport, err := h.uc.GetEstablishmentReport(ctx.Request.Context(), establishment_id)
+	establishmentId := ctx.Param("id")
+	establishmentReport, err := h.uc.GetEstablishmentReport(ctx.Request.Context(), establishmentId)
 	if err != nil {
 		h.RespondWithError(ctx, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusOK, "Establishment report", establishmentReport)
+	h.RespondWithSuccess(ctx, http.StatusOK, "establishment report", establishmentReport)
 }

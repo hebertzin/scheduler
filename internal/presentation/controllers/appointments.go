@@ -105,7 +105,7 @@ func (h *AppointmentHandler) GetAppointmentById(ctx *gin.Context) {
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusOK, "Appointment by id successfully retrieved", appointment)
+	h.RespondWithSuccess(ctx, http.StatusOK, "appointment by id successfully retrieved", appointment)
 }
 
 // @Summary      DeleteAppointment
@@ -126,5 +126,5 @@ func (h *AppointmentHandler) DeleteAppointment(ctx *gin.Context) {
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusNoContent, "Appointment deleted", nil)
+	h.RespondWithSuccess(ctx, http.StatusNoContent, "appointment deleted", nil)
 }

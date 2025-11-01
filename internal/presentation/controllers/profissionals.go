@@ -55,7 +55,7 @@ func (h *ProfessionalsHandler) Add(ctx *gin.Context) {
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusCreated, "Professional created successfully", professional)
+	h.RespondWithSuccess(ctx, http.StatusCreated, "professional created successfully", professional)
 }
 
 // FindProfessionalById godoc

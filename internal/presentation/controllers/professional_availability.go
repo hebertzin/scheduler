@@ -58,7 +58,7 @@ func (h *ProfessionalAvailabilityHandler) Add(ctx *gin.Context) {
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusCreated, "Professional availability created successfully", availability)
+	h.RespondWithSuccess(ctx, http.StatusCreated, "pprofessional availability created successfully", availability)
 }
 
 // Add godoc
@@ -73,12 +73,12 @@ func (h *ProfessionalAvailabilityHandler) Add(ctx *gin.Context) {
 // @Failure      500            {object}  domain.HttpResponse  "Internal Server Error"
 // @Router       /availability/:id/professional [get]
 func (h *ProfessionalAvailabilityHandler) GetProfessionalAvailabilityById(ctx *gin.Context) {
-	professional_id := ctx.Param("id")
-	availability, err := h.uc.GetProfessionalAvailabilityById(ctx.Request.Context(), professional_id)
+	professionalId := ctx.Param("id")
+	availability, err := h.uc.GetProfessionalAvailabilityById(ctx.Request.Context(), professionalId)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusOK, "Professional availability retrieved successfully", availability)
+	h.RespondWithSuccess(ctx, http.StatusOK, "pprofessional availability retrieved successfully", availability)
 }
