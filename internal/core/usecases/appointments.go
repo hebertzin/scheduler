@@ -20,31 +20,31 @@ func NewAppointmentUseCase(repository domain.AppointmentRepository, logger *logr
 func (s *AppointmentUseCase) Add(ctx context.Context, appointment *domain.Appointment) (*domain.Appointment, *core.Exception) {
 	appointment, err := s.repository.Add(ctx, appointment)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Error creating appointment"), core.WithError(err))
+		return nil, core.Unexpected(core.WithMessage("error creating appointment"), core.WithError(err))
 	}
 	return appointment, nil
 }
 
-func (s *AppointmentUseCase) GetAllAppointmentsByProfessionalId(ctx context.Context, professional_id string) ([]domain.Appointment, *core.Exception) {
-	appointments, err := s.repository.GetAllAppointmentsByProfessionalId(ctx, professional_id)
+func (s *AppointmentUseCase) GetAllAppointmentsByProfessionalId(ctx context.Context, professionalId string) ([]domain.Appointment, *core.Exception) {
+	appointments, err := s.repository.GetAllAppointmentsByProfessionalId(ctx, professionalId)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Error get all appointment by professional id"), core.WithError(err))
+		return nil, core.Unexpected(core.WithMessage("error get all appointment by professional id"), core.WithError(err))
 	}
 	return appointments, nil
 }
 
-func (s *AppointmentUseCase) GetAppointmentById(ctx context.Context, appointment_id string) (*domain.Appointment, *core.Exception) {
-	appointment, err := s.repository.GetAppointmentById(ctx, appointment_id)
+func (s *AppointmentUseCase) GetAppointmentById(ctx context.Context, appointmentId string) (*domain.Appointment, *core.Exception) {
+	appointment, err := s.repository.GetAppointmentById(ctx, appointmentId)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Error get appointment by id"), core.WithError(err))
+		return nil, core.Unexpected(core.WithMessage("error get appointment by id"), core.WithError(err))
 	}
 	return appointment, nil
 }
 
-func (s *AppointmentUseCase) DeleteAppointment(ctx context.Context, appointment_id string) *core.Exception {
-	err := s.repository.DeleteAppointment(ctx, appointment_id)
+func (s *AppointmentUseCase) DeleteAppointment(ctx context.Context, appointmentId string) *core.Exception {
+	err := s.repository.DeleteAppointment(ctx, appointmentId)
 	if err != nil {
-		return core.Unexpected(core.WithMessage("Error get appointment by id"), core.WithError(err))
+		return core.Unexpected(core.WithMessage("error get appointment by id"), core.WithError(err))
 	}
 	return nil
 }
