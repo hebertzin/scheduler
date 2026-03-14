@@ -10,14 +10,15 @@ import (
 
 type (
 	Appointment struct {
-		ProfessionalId string    `json:"professional_id"`
-		ServiceId      string    `json:"service_id"`
-		ScheduledDate  time.Time `json:"schedule_date"`
-		Email          string    `json:"user_email"`
-		Phone          string    `json:"user_phone"`
+		ProfessionalId string    `json:"professionalId"`
+		ServiceId      string    `json:"serviceId"`
+		StartTime      string    `json:"startTime"`
+		EndTime        string    `json:"endTime"`
+		Email          string    `json:"email"`
+		Phone          string    `json:"phone"`
 		Notes          string    `json:"notes"`
-		CreatedAt      time.Time `json:"created_at"`
-		UpdatedAt      time.Time `json:"updated_at"`
+		CreatedAt      time.Time `json:"createdAt"`
+		UpdatedAt      time.Time `json:"updatedAt"`
 	}
 
 	// AppointmentUseCase defines the business logic for appointments.
@@ -48,6 +49,8 @@ type (
 		GetAppointmentById(ctx context.Context, appointment_id string) (*Appointment, error)
 		// DeleteAppointment delete an appointment
 		DeleteAppointment(ctx context.Context, appointment_id string) error
+
+		ExistsByStartAndEndTime(ctx context.Context, startTime string, endTime string) (bool, error)
 	}
 
 	// AppointmentController defines the HTTP handlers for appointments.
