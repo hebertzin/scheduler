@@ -37,7 +37,7 @@ func NewClientsController(uc domain.ClientUseCase) *ClientHandler {
 func (h *ClientHandler) Add(ctx *gin.Context) {
 	var req clientRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		h.RespondWithError(ctx, http.StatusBadRequest, "Invalid request payload", err)
+		h.RespondWithError(ctx, http.StatusBadRequest, "invalid request payload", err)
 		return
 	}
 
@@ -52,5 +52,5 @@ func (h *ClientHandler) Add(ctx *gin.Context) {
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusCreated, "Account created successfully", c)
+	h.RespondWithSuccess(ctx, http.StatusCreated, "account created successfully", c)
 }

@@ -12,7 +12,8 @@ import (
 
 func AppointmentFactory(db *gorm.DB, logger *logrus.Logger) domain.AppointmentController {
 	repo := repository.NewAppointmentRepository(db, logger)
-	useCase := usecases.NewAppointmentUseCase(repo, logger)
-	handler := controllers.NewAppointmentController(useCase)
-	return handler
+	appointmentManager := usecases.NewAppointment(repo, logger, nil)
+
+	return controllers.NewAppointment(appointmentManager)
+
 }

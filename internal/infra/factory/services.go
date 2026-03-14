@@ -11,7 +11,7 @@ import (
 
 func ServiceFactory(db *gorm.DB, logger *logrus.Logger) domain.ServicesController {
 	repo := repository.NewServicesRepository(db, logger)
-	useCase := usecases.NewServicesUseCase(repo, logger)
-	handler := controllers.NewServicesController(useCase)
-	return handler
+	servicesManager := usecases.NewServices(repo, logger)
+
+	return controllers.NewServices(servicesManager)
 }

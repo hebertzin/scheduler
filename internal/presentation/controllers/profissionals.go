@@ -10,7 +10,7 @@ import (
 type (
 	ProfessionalsHandler struct {
 		BaseHandler
-		uc domain.ProfessionalsUseCase
+		manager domain.ProfessionalsUseCase
 	}
 
 	professionalRequest struct {
@@ -20,8 +20,8 @@ type (
 	}
 )
 
-func NewProfessionalController(uc domain.ProfessionalsUseCase) *ProfessionalsHandler {
-	return &ProfessionalsHandler{uc: uc}
+func NewProfessional(manager domain.ProfessionalsUseCase) *ProfessionalsHandler {
+	return &ProfessionalsHandler{manager: manager}
 }
 
 // Add godoc
@@ -48,14 +48,14 @@ func (h *ProfessionalsHandler) Add(ctx *gin.Context) {
 		EstablishmentId: req.EstablishmentId,
 	}
 
-	professional, err := h.uc.Add(ctx.Request.Context(), &professionalCreated)
+	professional, err := h.manager.Add(ctx.Request.Context(), &professionalCreated)
 
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusCreated, "Professional created successfully", professional)
+	h.RespondWithSuccess(ctx, http.StatusCreated, "professional created successfully", professional)
 }
 
 // FindProfessionalById godoc
@@ -71,7 +71,7 @@ func (h *ProfessionalsHandler) Add(ctx *gin.Context) {
 // @Router       /professionals/{id} [get]
 func (h *ProfessionalsHandler) FindProfessionalById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	professional, err := h.uc.FindProfessionalById(ctx.Request.Context(), id)
+	professional, err := h.manager.FindProfessionalById(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -94,7 +94,7 @@ func (h *ProfessionalsHandler) FindProfessionalById(ctx *gin.Context) {
 func (h *ProfessionalsHandler) UpdateProfessionalById(ctx *gin.Context) {
 	var input domain.Professionals
 	id := ctx.Param("id")
-	professional, err := h.uc.UpdateProfessionalById(ctx.Request.Context(), id, &input)
+	professional, err := h.manager.UpdateProfessionalById(ctx.Request.Context(), id, &input)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return

@@ -10,7 +10,7 @@ import (
 type (
 	ServicesHandler struct {
 		BaseHandler
-		uc domain.ServicesUseCase
+		manager domain.ServicesUseCase
 	}
 
 	serviceRequest struct {
@@ -21,8 +21,8 @@ type (
 	}
 )
 
-func NewServicesController(uc domain.ServicesUseCase) *ServicesHandler {
-	return &ServicesHandler{uc: uc}
+func NewServices(manager domain.ServicesUseCase) *ServicesHandler {
+	return &ServicesHandler{manager: manager}
 }
 
 // AddService godoc
@@ -50,13 +50,13 @@ func (h *ServicesHandler) Add(ctx *gin.Context) {
 		ProfessionalId: req.ProfessionalId,
 	}
 
-	service, err := h.uc.Add(ctx.Request.Context(), &serviceCreated)
+	service, err := h.manager.Add(ctx.Request.Context(), &serviceCreated)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusCreated, "Service created successfully", service)
+	h.RespondWithSuccess(ctx, http.StatusCreated, "service created successfully", service)
 }
 
 // FindServiceById godoc
@@ -72,13 +72,13 @@ func (h *ServicesHandler) Add(ctx *gin.Context) {
 // @Router       /services/{id} [get]
 func (h *ServicesHandler) FindServiceById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	service, err := h.uc.FindServiceById(ctx.Request.Context(), id)
+	service, err := h.manager.FindServiceById(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusOK, "Service found successfully", service)
+	h.RespondWithSuccess(ctx, http.StatusOK, "service found successfully", service)
 }
 
 // FindServiceById godoc
@@ -93,11 +93,11 @@ func (h *ServicesHandler) FindServiceById(ctx *gin.Context) {
 // @Failure      500  {object}  domain.HttpResponse  "Internal Server Error"
 // @Router       /services/{id}/all [get]
 func (h *ServicesHandler) GetAllServicesByProfessionalId(ctx *gin.Context) {
-	professional_id := ctx.Param("id")
-	services, err := h.uc.GetAllServicesByProfessionalId(ctx.Request.Context(), professional_id)
+	professionalId := ctx.Param("id")
+	services, err := h.manager.GetAllServicesByProfessionalId(ctx.Request.Context(), professionalId)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusOK, "All services found successfully", services)
+	h.RespondWithSuccess(ctx, http.StatusOK, "all services found successfully", services)
 }

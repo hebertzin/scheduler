@@ -18,9 +18,10 @@ func NewClientUseCase(repository domain.ClientRepository, logger *logrus.Logger)
 }
 
 func (s *ClientUseCase) Add(ctx context.Context, account *domain.Client) (*domain.Client, *core.Exception) {
-	account, err := s.repository.Add(ctx, account)
+	client, err := s.repository.Add(ctx, account)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Error creating account"), core.WithError(err))
+		return nil, core.Unexpected(core.WithMessage("error creating client"), core.WithError(err))
 	}
-	return account, nil
+
+	return client, nil
 }

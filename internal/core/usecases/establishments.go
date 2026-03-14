@@ -8,51 +8,65 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type EstablishmentUserUseCase struct {
+type EstablishmentManager struct {
 	repository domain.EstablishmentRepository
 	logger     *logrus.Logger
 }
 
-func NewEstablishmentUseCase(repository domain.EstablishmentRepository, logger *logrus.Logger) domain.EstablishmentUseCase {
-	return &EstablishmentUserUseCase{repository: repository, logger: logger}
+func NewEstablishment(repository domain.EstablishmentRepository, logger *logrus.Logger) domain.EstablishmentUseCase {
+	return &EstablishmentManager{repository: repository, logger: logger}
 }
 
-func (s *EstablishmentUserUseCase) FindEstablishmentById(ctx context.Context, id string) (*domain.Establishment, *core.Exception) {
-	establishment, err := s.repository.FindEstablishmentById(ctx, id)
+func (e *EstablishmentManager) FindEstablishmentById(ctx context.Context, establishmentId string) (*domain.Establishment, *core.Exception) {
+	establishment, err := e.repository.FindEstablishmentById(ctx, establishmentId)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Error finding establishment"), core.WithError(err))
+		return nil, core.Unexpected(core.WithMessage("error finding establishment"), core.WithError(err))
 	}
+
 	return establishment, nil
 }
 
-func (s *EstablishmentUserUseCase) Add(ctx context.Context, payload *domain.Establishment) (*domain.Establishment, *core.Exception) {
-	establishment, err := s.repository.Add(ctx, payload)
+func (e *EstablishmentManager) Add(ctx context.Context, payload *domain.Establishment) (*domain.Establishment, *core.Exception) {
+	establishment, err := e.repository.Add(ctx, payload)
 	if err != nil {
 		return nil, core.Unexpected()
 	}
+
 	return establishment, nil
 }
 
-func (s *EstablishmentUserUseCase) GetAllProfessionalsByEstablishmentId(ctx context.Context, establishment_id string) ([]domain.Professionals, *core.Exception) {
-	professionails, err := s.repository.GetAllProfessionalsByEstablishmentId(ctx, establishment_id)
+func (e *EstablishmentManager) GetAllProfessionalsByEstablishmentId(ctx context.Context, establishmentId string) ([]domain.Professionals, *core.Exception) {
+	professionals, err := e.repository.GetAllProfessionalsByEstablishmentId(ctx, establishmentId)
 	if err != nil {
 		return nil, core.Unexpected()
 	}
-	return professionails, nil
+
+	return professionals, nil
 }
 
-func (s *EstablishmentUserUseCase) UpdateEstablishmentById(ctx context.Context, establishment_id string, establishmentData *domain.Establishment) (*domain.Establishment, *core.Exception) {
-	establishment, err := s.repository.UpdateEstablishmentById(ctx, establishment_id, establishmentData)
+func (e *EstablishmentManager) UpdateEstablishmentById(ctx context.Context, establishmentId string, establishmentData *domain.Establishment) (*domain.Establishment, *core.Exception) {
+	establishment, err := e.repository.UpdateEstablishmentById(ctx, establishmentId, establishmentData)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Some error has been ocurred trying update a establishment"))
+		return nil, core.Unexpected(core.WithMessage("some error has been occurred trying update a establishment"))
 	}
+
 	return establishment, nil
 }
 
-func (s *EstablishmentUserUseCase) GetEstablishmentReport(ctx context.Context, establishment_id string) (*domain.EstablishmentReport, *core.Exception) {
-	stats, err := s.repository.GetEstablishmentReport(ctx, establishment_id)
+func (e *EstablishmentManager) GetEstablishmentReport(ctx context.Context, establishmentId string) (*domain.EstablishmentMetrics, *core.Exception) {
+	stats, err := e.repository.GetEstablishmentReport(ctx, establishmentId)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("Some error has been ocurred trying update a establishment"))
+		return nil, core.Unexpected(core.WithMessage("some error has been occurred trying update a establishment"))
 	}
-	return stats, nil
+
+	metrics := domain.EstablishmentMetrics{
+		TotalProfessionals:    stats.TotalProfessionals,
+		TotalServices:         stats.TotalServices,
+		TotalRevenue:          0,
+		TotalAppointments:     0,
+		TotalAppointsCanceled: 0,
+		TotalClients:          0,
+	}
+
+	return &metrics, nil
 }

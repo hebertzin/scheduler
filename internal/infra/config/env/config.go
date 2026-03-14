@@ -19,7 +19,7 @@ func LoadEnvConfig() *domain.ServiceConfig {
 		}).Error("Error loading .env file")
 	}
 
-	config := &domain.ServiceConfig{
+	c := &domain.ServiceConfig{
 		Port:                os.Getenv("PORT"),
 		RunMigrationEnabled: false,
 		SwaggerEnabled:      true,
@@ -35,11 +35,11 @@ func LoadEnvConfig() *domain.ServiceConfig {
 		},
 	}
 
-	if config.Database.User == "" || config.Database.Password == "" || config.Database.Database == "" || config.Database.Port == "" {
+	if c.Database.User == "" || c.Database.Password == "" || c.Database.Database == "" || c.Database.Port == "" {
 		println("Some env fields are missing")
 	}
 
-	return config
+	return c
 }
 
 func LoadJSONConfig(path string) (*domain.ServiceConfig, error) {

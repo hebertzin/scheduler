@@ -11,7 +11,7 @@ import (
 
 func EstablishmentFactory(db *gorm.DB, logger *logrus.Logger) domain.EstablishmentController {
 	repo := repository.NewEstablishmentRepository(db, logger)
-	useCase := usecases.NewEstablishmentUseCase(repo, logger)
-	handler := controllers.NewEstablishmentController(useCase)
-	return handler
+	establishmentManager := usecases.NewEstablishment(repo, logger)
+
+	return controllers.NewEstablishment(establishmentManager)
 }

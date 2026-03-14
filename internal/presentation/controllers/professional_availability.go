@@ -12,7 +12,7 @@ import (
 type (
 	ProfessionalAvailabilityHandler struct {
 		BaseHandler
-		uc domain.ProfessionalsAvailabilityUseCase
+		manager domain.ProfessionalsAvailabilityUseCase
 	}
 
 	professionalAvailabilityRequest struct {
@@ -23,8 +23,8 @@ type (
 	}
 )
 
-func NewProfessionalAvailabilityController(uc domain.ProfessionalsAvailabilityUseCase) *ProfessionalAvailabilityHandler {
-	return &ProfessionalAvailabilityHandler{uc: uc}
+func NewProfessionalAvailability(manager domain.ProfessionalsAvailabilityUseCase) *ProfessionalAvailabilityHandler {
+	return &ProfessionalAvailabilityHandler{manager: manager}
 }
 
 // Add godoc
@@ -52,13 +52,13 @@ func (h *ProfessionalAvailabilityHandler) Add(ctx *gin.Context) {
 		EndTime:        req.EndTime,
 	}
 
-	availability, err := h.uc.Add(ctx.Request.Context(), &professionalAvailabilityCreated)
+	availability, err := h.manager.Add(ctx.Request.Context(), &professionalAvailabilityCreated)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusCreated, "Professional availability created successfully", availability)
+	h.RespondWithSuccess(ctx, http.StatusCreated, "pprofessional availability created successfully", availability)
 }
 
 // Add godoc
@@ -73,12 +73,12 @@ func (h *ProfessionalAvailabilityHandler) Add(ctx *gin.Context) {
 // @Failure      500            {object}  domain.HttpResponse  "Internal Server Error"
 // @Router       /availability/:id/professional [get]
 func (h *ProfessionalAvailabilityHandler) GetProfessionalAvailabilityById(ctx *gin.Context) {
-	professional_id := ctx.Param("id")
-	availability, err := h.uc.GetProfessionalAvailabilityById(ctx.Request.Context(), professional_id)
+	professionalId := ctx.Param("id")
+	availability, err := h.manager.GetProfessionalAvailabilityById(ctx.Request.Context(), professionalId)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusOK, "Professional availability retrieved successfully", availability)
+	h.RespondWithSuccess(ctx, http.StatusOK, "pprofessional availability retrieved successfully", availability)
 }
