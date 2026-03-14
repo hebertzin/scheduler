@@ -95,7 +95,7 @@ func createRouter() *gin.Engine {
 	return gin.Default()
 }
 
-func startAccountAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, sender outbound.EmailSender) {
+func startAccountAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, sender domain.EmailSender) {
 	accountFactory := factory.AccountFactory(db, logger, sender)
 
 	v1 := router.Group("/api/v1")
