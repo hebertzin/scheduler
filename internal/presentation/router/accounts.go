@@ -12,7 +12,7 @@ func StartAccountsApi(router *gin.Engine, db *gorm.DB, logger *logrus.Logger) {
 	accountFactory := factory.AccountFactory(db, logger)
 	v1 := router.Group("/api/v1")
 	{
-		v1.GET("/account", accountFactory.FindAllAccounts)
+		v1.GET("/accounts", accountFactory.FindAllAccounts)
 		v1.POST("/accounts", accountFactory.Add)
 		v1.GET("/accounts/:id", accountFactory.FindAccountById)
 		v1.GET("/accounts/:id/establishments", accountFactory.FindAllEstablishmentsByAccountId)
