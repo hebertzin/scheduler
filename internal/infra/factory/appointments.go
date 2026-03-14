@@ -2,7 +2,8 @@ package factory
 
 import (
 	"github.com/hebertzin/scheduler/internal/core/usecases"
-	"github.com/hebertzin/scheduler/internal/domain"
+
+	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 
 	"github.com/hebertzin/scheduler/internal/infra/db/repository"
 	"github.com/hebertzin/scheduler/internal/presentation/controllers"
@@ -10,9 +11,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func AppointmentFactory(db *gorm.DB, logger *logrus.Logger) domain.AppointmentController {
+func AppointmentFactory(db *gorm.DB, logger *logrus.Logger) outbound.AppointmentController {
 	repo := repository.NewAppointmentRepository(db, logger)
-	appointmentManager := usecases.NewAppointment(repo, logger, nil)
+	availabilityManager := usecases.NewAvailability(repo)
+	appointmentManager := usecases.NewAppointment(repo, availabilityManager, logger, nil)
 
 	return controllers.NewAppointment(appointmentManager)
 

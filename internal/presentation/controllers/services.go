@@ -5,12 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 )
 
 type (
 	ServicesHandler struct {
 		BaseHandler
-		manager domain.ServicesUseCase
+		manager inbound.ServicesUseCase
 	}
 
 	serviceRequest struct {
@@ -21,7 +22,7 @@ type (
 	}
 )
 
-func NewServices(manager domain.ServicesUseCase) *ServicesHandler {
+func NewServices(manager inbound.ServicesUseCase) *ServicesHandler {
 	return &ServicesHandler{manager: manager}
 }
 

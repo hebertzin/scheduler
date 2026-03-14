@@ -5,12 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 )
 
 type (
 	ClientHandler struct {
 		BaseHandler
-		uc domain.ClientUseCase
+		uc inbound.ClientUseCase
 	}
 
 	clientRequest struct {
@@ -19,7 +20,7 @@ type (
 	}
 )
 
-func NewClientsController(uc domain.ClientUseCase) *ClientHandler {
+func NewClientsController(uc inbound.ClientUseCase) *ClientHandler {
 	return &ClientHandler{uc: uc}
 }
 

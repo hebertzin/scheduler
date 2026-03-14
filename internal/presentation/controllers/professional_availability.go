@@ -6,12 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 )
 
 type (
 	ProfessionalAvailabilityHandler struct {
 		BaseHandler
-		manager domain.ProfessionalsAvailabilityUseCase
+		manager inbound.ProfessionalsAvailabilityUseCase
 	}
 
 	professionalAvailabilityRequest struct {
@@ -22,7 +23,7 @@ type (
 	}
 )
 
-func NewProfessionalAvailability(manager domain.ProfessionalsAvailabilityUseCase) *ProfessionalAvailabilityHandler {
+func NewProfessionalAvailability(manager inbound.ProfessionalsAvailabilityUseCase) *ProfessionalAvailabilityHandler {
 	return &ProfessionalAvailabilityHandler{manager: manager}
 }
 

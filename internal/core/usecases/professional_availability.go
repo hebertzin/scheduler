@@ -5,15 +5,17 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
+	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/sirupsen/logrus"
 )
 
 type ProfessionalsAvailabilityManager struct {
-	repository domain.ProfessionalsAvailabilityRepository
+	repository outbound.ProfessionalsAvailabilityRepository
 	logger     *logrus.Logger
 }
 
-func NewProfessionalsAvailability(repository domain.ProfessionalsAvailabilityRepository, logger *logrus.Logger) domain.ProfessionalsAvailabilityUseCase {
+func NewProfessionalsAvailability(repository outbound.ProfessionalsAvailabilityRepository, logger *logrus.Logger) inbound.ProfessionalsAvailabilityUseCase {
 	return &ProfessionalsAvailabilityManager{repository: repository, logger: logger}
 }
 
