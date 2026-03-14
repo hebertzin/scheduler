@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/core"
-	"github.com/hebertzin/scheduler/internal/core/usecases"
 )
 
 type (
@@ -21,6 +20,20 @@ type (
 		UpdatedAt  time.Time `json:"updated_at"`  // Timestamp of last update
 	}
 
+	EstablishmentMetrics struct {
+		TotalProfessionals    int64
+		TotalServices         int64
+		TotalRevenue          int
+		TotalAppointments     int
+		TotalAppointsCanceled int
+		TotalClients          int
+	}
+
+	EstablishmentReport struct {
+		TotalProfessionals int64 `json:"total_professionals"`
+		TotalServices      int64 `json:"total_services"`
+	}
+
 	// EstablishmentUseCase defines the business logic for establishments.
 	EstablishmentUseCase interface {
 		// Add creates a new establishment.
@@ -30,7 +43,7 @@ type (
 		// FindEstablishmentById retrieves an establishment by its ID.
 		FindEstablishmentById(ctx context.Context, establishment_id string) (*Establishment, *core.Exception)
 		// GetEstablishmentReport generates a report for a given establishment.
-		GetEstablishmentReport(ctx context.Context, establishment_id string) (*usecases.EstablishmentMetrics, *core.Exception)
+		GetEstablishmentReport(ctx context.Context, establishment_id string) (*EstablishmentMetrics, *core.Exception)
 		// UpdateEstablishmentById updates establishment data by its ID.
 		UpdateEstablishmentById(ctx context.Context, establishment_id string, establishmentData *Establishment) (*Establishment, *core.Exception)
 	}

@@ -6,39 +6,36 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
-	"github.com/hebertzin/scheduler/internal/infra/smtp"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type AccountUseCase struct {
-	repository domain.AccountRepository
-	logger     *logrus.Logger
-	smptConfig *smtp.SMPTConfig
+type AccountManager struct {
+	repository    domain.AccountRepository
+	logger        *logrus.Logger
+	emailProvider domain.EmailSender
 }
 
-func NewAccountUseCase(
+func NewAccount(
 	repository domain.AccountRepository,
+	emailProvider domain.EmailSender,
 	logger *logrus.Logger,
-	smtpConfig *smtp.SMPTConfig,
 ) domain.AccountUseCase {
 
-	s := smtp.NewSMPT(smtpConfig.Port, smtpConfig.Password, smtpConfig.Host)
-
-	return &AccountUseCase{
-		repository: repository,
-		logger:     logger,
-		smptConfig: s,
+	return &AccountManager{
+		repository:    repository,
+		emailProvider: emailProvider,
+		logger:        logger,
 	}
 }
 
-func (s *AccountUseCase) Add(ctx context.Context, payload *domain.Account) (*domain.Account, *core.Exception) {
+func (a *AccountManager) Add(ctx context.Context, payload *domain.Account) (*domain.Account, *core.Exception) {
 	isValidEmail := validateAccountEmail(payload.Email)
 	if !isValidEmail {
 		return nil, core.BadRequest(core.WithMessage("invalid email"))
 	}
 
-	account, _ := s.repository.FindAccountByEmail(ctx, payload.Email)
+	account, _ := a.repository.FindAccountByEmail(ctx, payload.Email)
 	if account == nil {
 		return nil, core.Confilct(core.WithMessage("account already exists in the database"))
 	}
@@ -49,12 +46,12 @@ func (s *AccountUseCase) Add(ctx context.Context, payload *domain.Account) (*dom
 	}
 	payload.Password = string(hash)
 
-	a, err := s.repository.Add(ctx, payload)
+	account, err = a.repository.Add(ctx, payload)
 	if err != nil {
 		return nil, core.Unexpected()
 	}
 
-	message := smtp.SMPTSendEmail{
+	message := domain.EmailMessage{
 		From:    "hebertsantosdeveloper@gmail.com",
 		To:      []string{account.Email},
 		Subject: "Confirm your account",
@@ -64,14 +61,12 @@ func (s *AccountUseCase) Add(ctx context.Context, payload *domain.Account) (*dom
                   Best regards.`,
 	}
 
-	// if smpt fails, dont break the user flow
-	_ = s.smptConfig.Send(message)
-
-	return a, nil
+	a.emailProvider.Send(message)
+	return account, nil
 }
 
-func (s *AccountUseCase) FindAccountById(ctx context.Context, accountId string) (*domain.Account, *core.Exception) {
-	account, err := s.repository.FindAccountById(ctx, accountId)
+func (a *AccountManager) FindAccountById(ctx context.Context, accountId string) (*domain.Account, *core.Exception) {
+	account, err := a.repository.FindAccountById(ctx, accountId)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("error finding account"), core.WithError(err))
 	}
@@ -79,8 +74,8 @@ func (s *AccountUseCase) FindAccountById(ctx context.Context, accountId string) 
 	return account, nil
 }
 
-func (s *AccountUseCase) FindAllAccounts(ctx context.Context) ([]domain.Account, *core.Exception) {
-	account, err := s.repository.FindAllAccounts(ctx)
+func (a *AccountManager) FindAllAccounts(ctx context.Context) ([]domain.Account, *core.Exception) {
+	account, err := a.repository.FindAllAccounts(ctx)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("some error has been ocurred"))
 	}
@@ -88,8 +83,8 @@ func (s *AccountUseCase) FindAllAccounts(ctx context.Context) ([]domain.Account,
 	return account, nil
 }
 
-func (s *AccountUseCase) FindAllEstablishmentsByAccountId(ctx context.Context, accountId string) ([]domain.Establishment, *core.Exception) {
-	establishments, err := s.repository.FindAllEstablishmentsByAccountId(ctx, accountId)
+func (a *AccountManager) FindAllEstablishmentsByAccountId(ctx context.Context, accountId string) ([]domain.Establishment, *core.Exception) {
+	establishments, err := a.repository.FindAllEstablishmentsByAccountId(ctx, accountId)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("some error has been ocurred"))
 	}
