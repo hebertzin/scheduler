@@ -8,10 +8,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type EstablishmentUserUseCase struct {
-	repository domain.EstablishmentRepository
-	logger     *logrus.Logger
-}
+type (
+	EstablishmentUserUseCase struct {
+		repository domain.EstablishmentRepository
+		logger     *logrus.Logger
+	}
+
+	EstablishmentMetrics struct {
+		TotalProfessionals    int64
+		TotalServices         int64
+		TotalRevenue          int
+		TotalAppointments     int
+		TotalAppointsCanceled int
+		TotalClients          int
+	}
+)
 
 func NewEstablishmentUseCase(repository domain.EstablishmentRepository, logger *logrus.Logger) domain.EstablishmentUseCase {
 	return &EstablishmentUserUseCase{repository: repository, logger: logger}
@@ -53,11 +64,20 @@ func (s *EstablishmentUserUseCase) UpdateEstablishmentById(ctx context.Context, 
 	return establishment, nil
 }
 
-func (s *EstablishmentUserUseCase) GetEstablishmentReport(ctx context.Context, establishmentId string) (*domain.EstablishmentReport, *core.Exception) {
+func (s *EstablishmentUserUseCase) GetEstablishmentReport(ctx context.Context, establishmentId string) (*EstablishmentMetrics, *core.Exception) {
 	stats, err := s.repository.GetEstablishmentReport(ctx, establishmentId)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("some error has been occurred trying update a establishment"))
 	}
 
-	return stats, nil
+	metrics := EstablishmentMetrics{
+		TotalProfessionals:    stats.TotalProfessionals,
+		TotalServices:         stats.TotalServices,
+		TotalRevenue:          0,
+		TotalAppointments:     0,
+		TotalAppointsCanceled: 0,
+		TotalClients:          0,
+	}
+
+	return &metrics, nil
 }

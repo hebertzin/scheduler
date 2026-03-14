@@ -100,12 +100,13 @@ func (h *EstablishmentHandler) FindEstablishmentById(ctx *gin.Context) {
 // @Failure      500  {object}  domain.HttpResponse  "Internal Server Error"
 // @Router       /establishment/:id/professionals [get]
 func (h *EstablishmentHandler) GetAllProfessinalsByEstablishmentId(ctx *gin.Context) {
-	establishment_id := ctx.Param("id")
-	professionals, err := h.uc.GetAllProfessionalsByEstablishmentId(ctx.Request.Context(), establishment_id)
+	id := getIdParam(ctx, "id")
+	professionals, err := h.uc.GetAllProfessionalsByEstablishmentId(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
 	}
+
 	h.RespondWithSuccess(ctx, http.StatusOK, "professionals found successfully", professionals)
 }
 
@@ -120,9 +121,24 @@ func (h *EstablishmentHandler) GetAllProfessinalsByEstablishmentId(ctx *gin.Cont
 // @Failure      500  {object}  domain.HttpResponse  "Internal Server Error"
 // @Router       /establishments/:id/update [put]
 func (h *EstablishmentHandler) UpdateEstablishmentById(ctx *gin.Context) {
-	establishment_id := ctx.Param("id")
-	var input domain.Establishment
-	establishments, err := h.uc.UpdateEstablishmentById(ctx.Request.Context(), establishment_id, &input)
+	id := getIdParam(ctx, "id")
+
+	var req establishmentRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.RespondWithError(ctx, http.StatusBadRequest, err.Error(), err)
+		return
+	}
+
+	dto := domain.Establishment{
+		Name:       req.Name,
+		City:       req.City,
+		PostalCode: req.PostalCode,
+		State:      req.State,
+		Number:     req.Number,
+		UserId:     req.UserId,
+	}
+
+	establishments, err := h.uc.UpdateEstablishmentById(ctx.Request.Context(), id, &dto)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -143,12 +159,16 @@ func (h *EstablishmentHandler) UpdateEstablishmentById(ctx *gin.Context) {
 // @Failure      500  {object}  domain.HttpResponse  "Internal Server Error"
 // @Router       /establishments/:id/report [get]
 func (h *EstablishmentHandler) GetEstablishmentReport(ctx *gin.Context) {
-	establishmentId := ctx.Param("id")
-	establishmentReport, err := h.uc.GetEstablishmentReport(ctx.Request.Context(), establishmentId)
+	id := getIdParam(ctx, "id")
+	metrics, err := h.uc.GetEstablishmentReport(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	h.RespondWithSuccess(ctx, http.StatusOK, "establishment report", establishmentReport)
+	h.RespondWithSuccess(ctx, http.StatusOK, "establishment metrics", metrics)
+}
+
+func getIdParam(ctx *gin.Context, paramName string) string {
+	return ctx.Param(paramName)
 }
