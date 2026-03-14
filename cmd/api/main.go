@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/hebertzin/scheduler/internal/infra/config/env"
 	"github.com/hebertzin/scheduler/internal/infra/config/logging"
 	"github.com/hebertzin/scheduler/internal/infra/db"
@@ -94,7 +95,7 @@ func createRouter() *gin.Engine {
 	return gin.Default()
 }
 
-func startAccountAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, sender domain.EmailSender) {
+func startAccountAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, sender outbound.EmailSender) {
 	accountFactory := factory.AccountFactory(db, logger, sender)
 
 	v1 := router.Group("/api/v1")

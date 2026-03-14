@@ -20,5 +20,6 @@ type (
 		Add(ctx *gin.Context)
 		FindAccountById(ctx *gin.Context)
 		FindAllAccounts(ctx *gin.Context)
+		FindAllEstablishmentsByAccountId(ctx *gin.Context)
 	}
 )
