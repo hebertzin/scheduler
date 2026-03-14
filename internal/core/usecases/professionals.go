@@ -5,15 +5,17 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
+	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/sirupsen/logrus"
 )
 
 type ProfessionalsManager struct {
-	repository domain.ProfessionalsRepository
+	repository outbound.ProfessionalsRepository
 	logger     *logrus.Logger
 }
 
-func NewProfessional(repository domain.ProfessionalsRepository, logger *logrus.Logger) domain.ProfessionalsUseCase {
+func NewProfessional(repository outbound.ProfessionalsRepository, logger *logrus.Logger) inbound.ProfessionalsUseCase {
 	return &ProfessionalsManager{repository: repository, logger: logger}
 }
 

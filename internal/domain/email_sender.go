@@ -6,7 +6,3 @@ type EmailMessage struct {
 	Subject string
 	Message string
 }
-
-type EmailSender interface {
-	Send(message EmailMessage)
-}
