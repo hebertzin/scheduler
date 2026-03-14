@@ -11,7 +11,7 @@ import (
 type (
 	AppointmentHandler struct {
 		BaseHandler
-		uc domain.AppointmentUseCase
+		manager domain.AppointmentUseCase
 	}
 
 	appointmentRequest struct {
@@ -24,8 +24,8 @@ type (
 	}
 )
 
-func NewAppointmentController(uc domain.AppointmentUseCase) *AppointmentHandler {
-	return &AppointmentHandler{uc: uc}
+func NewAppointment(manager domain.AppointmentUseCase) *AppointmentHandler {
+	return &AppointmentHandler{manager: manager}
 }
 
 // Add godoc
@@ -55,7 +55,7 @@ func (h *AppointmentHandler) Add(ctx *gin.Context) {
 		Notes:          req.Notes,
 	}
 
-	appointmentCreated, err := h.uc.Add(ctx.Request.Context(), &appointment)
+	appointmentCreated, err := h.manager.Add(ctx.Request.Context(), &appointment)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -77,7 +77,7 @@ func (h *AppointmentHandler) Add(ctx *gin.Context) {
 // @Router       /appointments/:id/professional [get]
 func (h *AppointmentHandler) GetAllAppointmentsByProfessionalId(ctx *gin.Context) {
 	id := ctx.Param("id")
-	appointments, err := h.uc.GetAllAppointmentsByProfessionalId(ctx.Request.Context(), id)
+	appointments, err := h.manager.GetAllAppointmentsByProfessionalId(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -99,7 +99,7 @@ func (h *AppointmentHandler) GetAllAppointmentsByProfessionalId(ctx *gin.Context
 // @Router       /appointments/:id [get]
 func (h *AppointmentHandler) GetAppointmentById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	appointment, err := h.uc.GetAppointmentById(ctx.Request.Context(), id)
+	appointment, err := h.manager.GetAppointmentById(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -120,7 +120,7 @@ func (h *AppointmentHandler) GetAppointmentById(ctx *gin.Context) {
 // @Router       /appointments/{id} [delete]
 func (h *AppointmentHandler) DeleteAppointment(ctx *gin.Context) {
 	id := ctx.Param("id")
-	err := h.uc.DeleteAppointment(ctx.Request.Context(), id)
+	err := h.manager.DeleteAppointment(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return

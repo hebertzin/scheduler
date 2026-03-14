@@ -10,7 +10,7 @@ import (
 type (
 	ServicesHandler struct {
 		BaseHandler
-		uc domain.ServicesUseCase
+		manager domain.ServicesUseCase
 	}
 
 	serviceRequest struct {
@@ -21,8 +21,8 @@ type (
 	}
 )
 
-func NewServicesController(uc domain.ServicesUseCase) *ServicesHandler {
-	return &ServicesHandler{uc: uc}
+func NewServices(manager domain.ServicesUseCase) *ServicesHandler {
+	return &ServicesHandler{manager: manager}
 }
 
 // AddService godoc
@@ -50,7 +50,7 @@ func (h *ServicesHandler) Add(ctx *gin.Context) {
 		ProfessionalId: req.ProfessionalId,
 	}
 
-	service, err := h.uc.Add(ctx.Request.Context(), &serviceCreated)
+	service, err := h.manager.Add(ctx.Request.Context(), &serviceCreated)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -72,7 +72,7 @@ func (h *ServicesHandler) Add(ctx *gin.Context) {
 // @Router       /services/{id} [get]
 func (h *ServicesHandler) FindServiceById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	service, err := h.uc.FindServiceById(ctx.Request.Context(), id)
+	service, err := h.manager.FindServiceById(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -94,7 +94,7 @@ func (h *ServicesHandler) FindServiceById(ctx *gin.Context) {
 // @Router       /services/{id}/all [get]
 func (h *ServicesHandler) GetAllServicesByProfessionalId(ctx *gin.Context) {
 	professionalId := ctx.Param("id")
-	services, err := h.uc.GetAllServicesByProfessionalId(ctx.Request.Context(), professionalId)
+	services, err := h.manager.GetAllServicesByProfessionalId(ctx.Request.Context(), professionalId)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 	}

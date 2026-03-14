@@ -10,7 +10,7 @@ import (
 type (
 	AccountHandler struct {
 		BaseHandler
-		uc domain.AccountUseCase
+		manager domain.AccountUseCase
 	}
 
 	accountRequest struct {
@@ -20,8 +20,8 @@ type (
 	}
 )
 
-func NewAccountController(uc domain.AccountUseCase) *AccountHandler {
-	return &AccountHandler{uc: uc}
+func NewAccount(manager domain.AccountUseCase) *AccountHandler {
+	return &AccountHandler{manager: manager}
 }
 
 // Add godoc
@@ -48,7 +48,7 @@ func (h *AccountHandler) Add(ctx *gin.Context) {
 		Password: req.Password,
 	}
 
-	account, err := h.uc.Add(ctx.Request.Context(), &accountCreated)
+	account, err := h.manager.Add(ctx.Request.Context(), &accountCreated)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -71,7 +71,7 @@ func (h *AccountHandler) Add(ctx *gin.Context) {
 // @Router       /accounts/{id} [get]
 func (h *AccountHandler) FindAccountById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	account, err := h.uc.FindAccountById(ctx.Request.Context(), id)
+	account, err := h.manager.FindAccountById(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -91,7 +91,7 @@ func (h *AccountHandler) FindAccountById(ctx *gin.Context) {
 // @Failure      500  {object}  domain.HttpResponse  "Internal Server Error"
 // @Router       /accounts [get]
 func (h *AccountHandler) FindAllAccounts(ctx *gin.Context) {
-	accounts, err := h.uc.FindAllAccounts(ctx.Request.Context())
+	accounts, err := h.manager.FindAllAccounts(ctx.Request.Context())
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -102,7 +102,7 @@ func (h *AccountHandler) FindAllAccounts(ctx *gin.Context) {
 
 func (h *AccountHandler) FindAllEstablishmentsByAccountId(ctx *gin.Context) {
 	id := ctx.Param("id")
-	establishments, err := h.uc.FindAllEstablishmentsByAccountId(ctx.Request.Context(), id)
+	establishments, err := h.manager.FindAllEstablishmentsByAccountId(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 	}

@@ -12,7 +12,7 @@ import (
 type (
 	ProfessionalAvailabilityHandler struct {
 		BaseHandler
-		uc domain.ProfessionalsAvailabilityUseCase
+		manager domain.ProfessionalsAvailabilityUseCase
 	}
 
 	professionalAvailabilityRequest struct {
@@ -23,8 +23,8 @@ type (
 	}
 )
 
-func NewProfessionalAvailabilityController(uc domain.ProfessionalsAvailabilityUseCase) *ProfessionalAvailabilityHandler {
-	return &ProfessionalAvailabilityHandler{uc: uc}
+func NewProfessionalAvailability(manager domain.ProfessionalsAvailabilityUseCase) *ProfessionalAvailabilityHandler {
+	return &ProfessionalAvailabilityHandler{manager: manager}
 }
 
 // Add godoc
@@ -52,7 +52,7 @@ func (h *ProfessionalAvailabilityHandler) Add(ctx *gin.Context) {
 		EndTime:        req.EndTime,
 	}
 
-	availability, err := h.uc.Add(ctx.Request.Context(), &professionalAvailabilityCreated)
+	availability, err := h.manager.Add(ctx.Request.Context(), &professionalAvailabilityCreated)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -74,7 +74,7 @@ func (h *ProfessionalAvailabilityHandler) Add(ctx *gin.Context) {
 // @Router       /availability/:id/professional [get]
 func (h *ProfessionalAvailabilityHandler) GetProfessionalAvailabilityById(ctx *gin.Context) {
 	professionalId := ctx.Param("id")
-	availability, err := h.uc.GetProfessionalAvailabilityById(ctx.Request.Context(), professionalId)
+	availability, err := h.manager.GetProfessionalAvailabilityById(ctx.Request.Context(), professionalId)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return

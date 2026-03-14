@@ -11,7 +11,7 @@ import (
 type (
 	EstablishmentHandler struct {
 		BaseHandler
-		uc domain.EstablishmentUseCase
+		manager domain.EstablishmentUseCase
 	}
 
 	establishmentRequest struct {
@@ -26,8 +26,8 @@ type (
 	}
 )
 
-func NewEstablishmentController(uc domain.EstablishmentUseCase) *EstablishmentHandler {
-	return &EstablishmentHandler{uc: uc}
+func NewEstablishment(manager domain.EstablishmentUseCase) *EstablishmentHandler {
+	return &EstablishmentHandler{manager: manager}
 }
 
 // Add godoc
@@ -57,7 +57,7 @@ func (h *EstablishmentHandler) Add(ctx *gin.Context) {
 		UserId:     req.UserId,
 	}
 
-	establishment, err := h.uc.Add(ctx.Request.Context(), &estblishmentCreated)
+	establishment, err := h.manager.Add(ctx.Request.Context(), &estblishmentCreated)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -79,7 +79,7 @@ func (h *EstablishmentHandler) Add(ctx *gin.Context) {
 // @Router       /establishment_id/{id} [get]
 func (h *EstablishmentHandler) FindEstablishmentById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	establishment, err := h.uc.FindEstablishmentById(ctx.Request.Context(), id)
+	establishment, err := h.manager.FindEstablishmentById(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -101,7 +101,7 @@ func (h *EstablishmentHandler) FindEstablishmentById(ctx *gin.Context) {
 // @Router       /establishment/:id/professionals [get]
 func (h *EstablishmentHandler) GetAllProfessinalsByEstablishmentId(ctx *gin.Context) {
 	id := getIdParam(ctx, "id")
-	professionals, err := h.uc.GetAllProfessionalsByEstablishmentId(ctx.Request.Context(), id)
+	professionals, err := h.manager.GetAllProfessionalsByEstablishmentId(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -138,7 +138,7 @@ func (h *EstablishmentHandler) UpdateEstablishmentById(ctx *gin.Context) {
 		UserId:     req.UserId,
 	}
 
-	establishments, err := h.uc.UpdateEstablishmentById(ctx.Request.Context(), id, &dto)
+	establishments, err := h.manager.UpdateEstablishmentById(ctx.Request.Context(), id, &dto)
 	if err != nil {
 		h.RespondWithError(ctx, err.Code, err.Message, err)
 		return
@@ -160,7 +160,7 @@ func (h *EstablishmentHandler) UpdateEstablishmentById(ctx *gin.Context) {
 // @Router       /establishments/:id/report [get]
 func (h *EstablishmentHandler) GetEstablishmentReport(ctx *gin.Context) {
 	id := getIdParam(ctx, "id")
-	metrics, err := h.uc.GetEstablishmentReport(ctx.Request.Context(), id)
+	metrics, err := h.manager.GetEstablishmentReport(ctx.Request.Context(), id)
 	if err != nil {
 		h.RespondWithError(ctx, http.StatusBadRequest, err.Error(), err)
 		return
