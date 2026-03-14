@@ -6,6 +6,7 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/infra/smtp"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -13,12 +14,21 @@ import (
 type AccountUseCase struct {
 	repository domain.AccountRepository
 	logger     *logrus.Logger
+	smptConfig *smtp.SMPTConfig
 }
 
-func NewAccountUseCase(repository domain.AccountRepository, logger *logrus.Logger) domain.AccountUseCase {
+func NewAccountUseCase(
+	repository domain.AccountRepository,
+	logger *logrus.Logger,
+	smtpConfig *smtp.SMPTConfig,
+) domain.AccountUseCase {
+
+	s := smtp.NewSMPT(smtpConfig.Port, smtpConfig.Password, smtpConfig.Host)
+
 	return &AccountUseCase{
 		repository: repository,
 		logger:     logger,
+		smptConfig: s,
 	}
 }
 
@@ -42,6 +52,17 @@ func (s *AccountUseCase) Add(ctx context.Context, payload *domain.Account) (*dom
 	a, err := s.repository.Add(ctx, payload)
 	if err != nil {
 		return nil, core.Unexpected()
+	}
+	message := smtp.SMPTSendEmail{
+		From:    "hebertsantosdeveloper@gmail.com",
+		To:      []string{account.Email},
+		Message: "Thank you for create your account, you can confirm your account in the link below",
+		Subject: "Account created",
+	}
+
+	err = s.smptConfig.Send(message)
+	if err != nil {
+		return nil, core.Unexpected(core.WithMessage("error generating password hash"))
 	}
 
 	return a, nil
