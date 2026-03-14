@@ -5,6 +5,7 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/infra/emailtemplates"
 
 	"github.com/sirupsen/logrus"
 )
@@ -38,17 +39,22 @@ func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appo
 		return nil, core.Unexpected(core.WithMessage("error creating appointment"), core.WithError(err))
 	}
 
+	appointmentConfirmation := emailtemplates.AppointmentConfirmationData{
+		Name:      appointment.Email,
+		StartTime: appointment.StartTime,
+		EndTime:   appointment.EndTime,
+	}
+
+	body, _ := emailtemplates.RenderAppointmentConfirmation(appointmentConfirmation)
+
 	message := domain.EmailMessage{
 		From:    "hebertsantosdeveloper@gmail.com",
 		To:      []string{appointment.Email},
-		Subject: "Appointment Confirmation",
-		Message: `Hello, Your appointment has been successfully scheduled.
-                 If you need to reschedule or cancel, please reply to this email or contact our support team.
-                Thank you.`,
+		Subject: emailtemplates.AppointmentConfirmationSubject,
+		Message: body,
 	}
 
 	manager.emailProvider.Send(message)
-
 	return appointment, nil
 }
 
