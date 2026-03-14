@@ -11,7 +11,7 @@ import (
 
 func ProfessionalAvailabilityFactory(db *gorm.DB, logger *logrus.Logger) domain.ProfessionalAvailabilityController {
 	repo := repository.NewProfessionalsAvailabilityRepository(db, logger)
-	profissionalAvailabilityManager := usecases.NewProfessionalsAvailability(repo, logger)
+	professionalAvailabilityManager := usecases.NewProfessionalsAvailability(repo, logger)
 
-	return controllers.NewProfessionalAvailability(profissionalAvailabilityManager)
+	return controllers.NewProfessionalAvailability(professionalAvailabilityManager)
 }

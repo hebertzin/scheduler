@@ -16,7 +16,7 @@ type (
 	professionalRequest struct {
 		Name            string `json:"name" validate:"required"`
 		Role            string `json:"role" validate:"required"`
-		EstablishmentId string `json:"establishment" validate:"required"`
+		EstablishmentId string `json:"establishmentId" validate:"required"`
 	}
 )
 

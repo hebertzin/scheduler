@@ -13,12 +13,12 @@ type ProfessionalsManager struct {
 	logger     *logrus.Logger
 }
 
-func NewProfissional(repository domain.ProfessionalsRepository, logger *logrus.Logger) domain.ProfessionalsUseCase {
+func NewProfessional(repository domain.ProfessionalsRepository, logger *logrus.Logger) domain.ProfessionalsUseCase {
 	return &ProfessionalsManager{repository: repository, logger: logger}
 }
 
-func (s *ProfessionalsManager) FindProfessionalById(ctx context.Context, professionalId string) (*domain.Professionals, *core.Exception) {
-	professional, err := s.repository.FindProfessionalById(ctx, professionalId)
+func (s *ProfessionalsManager) FindProfessionalById(ctx context.Context, id string) (*domain.Professionals, *core.Exception) {
+	professional, err := s.repository.FindProfessionalById(ctx, id)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("error finding professional"), core.WithError(err))
 	}
@@ -39,8 +39,8 @@ func (s *ProfessionalsManager) Add(ctx context.Context, payload *domain.Professi
 	return professional, nil
 }
 
-func (s *ProfessionalsManager) UpdateProfessionalById(ctx context.Context, professionalId string, professionalData *domain.Professionals) (*domain.Professionals, *core.Exception) {
-	professional, err := s.repository.UpdateProfessionalById(ctx, professionalId, professionalData)
+func (s *ProfessionalsManager) UpdateProfessionalById(ctx context.Context, id string, professionalData *domain.Professionals) (*domain.Professionals, *core.Exception) {
+	professional, err := s.repository.UpdateProfessionalById(ctx, id, professionalData)
 	if err != nil {
 		return nil, core.Unexpected()
 	}

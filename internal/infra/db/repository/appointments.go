@@ -54,3 +54,23 @@ func (repo *AppointmentDatabaseRepository) DeleteAppointment(ctx context.Context
 	}
 	return nil
 }
+
+func (repo *AppointmentDatabaseRepository) ExistsByStartAndEndTime(
+	ctx context.Context,
+	startTime string,
+	endTime string,
+) (bool, error) {
+
+	var count int64
+
+	err := repo.db.WithContext(ctx).
+		Model(&domain.Appointment{}).
+		Where("start_time = ? AND end_time = ?", startTime, endTime).
+		Count(&count).Error
+
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}

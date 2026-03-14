@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
@@ -15,12 +14,13 @@ type (
 	}
 
 	appointmentRequest struct {
-		ProfessionalID string    `json:"professional_id" validate:"required"`
-		ServiceID      string    `json:"service_id" validate:"required"`
-		ScheduledDate  time.Time `json:"schedule_date" validate:"required"`
-		Email          string    `json:"user_email" validate:"required"`
-		Phone          string    `json:"user_phone" validate:"required"`
-		Notes          string    `json:"notes"`
+		ProfessionalID string `json:"professionalId" validate:"required"`
+		ServiceID      string `json:"serviceId" validate:"required"`
+		StartTime      string `json:"startTime" validate:"required"`
+		EndTime        string `json:"endTime" validate:"required"`
+		Email          string `json:"email" validate:"required"`
+		Phone          string `json:"phone" validate:"required"`
+		Notes          string `json:"notes"`
 	}
 )
 
@@ -49,7 +49,8 @@ func (h *AppointmentHandler) Add(ctx *gin.Context) {
 	appointment := domain.Appointment{
 		ProfessionalId: req.ProfessionalID,
 		ServiceId:      req.ServiceID,
-		ScheduledDate:  req.ScheduledDate,
+		StartTime:      req.StartTime,
+		EndTime:        req.EndTime,
 		Email:          req.Email,
 		Phone:          req.Phone,
 		Notes:          req.Notes,

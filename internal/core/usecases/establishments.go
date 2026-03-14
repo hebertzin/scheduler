@@ -17,8 +17,8 @@ func NewEstablishment(repository domain.EstablishmentRepository, logger *logrus.
 	return &EstablishmentManager{repository: repository, logger: logger}
 }
 
-func (e *EstablishmentManager) FindEstablishmentById(ctx context.Context, establishmentId string) (*domain.Establishment, *core.Exception) {
-	establishment, err := e.repository.FindEstablishmentById(ctx, establishmentId)
+func (e *EstablishmentManager) FindEstablishmentById(ctx context.Context, id string) (*domain.Establishment, *core.Exception) {
+	establishment, err := e.repository.FindEstablishmentById(ctx, id)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("error finding establishment"), core.WithError(err))
 	}
@@ -35,8 +35,8 @@ func (e *EstablishmentManager) Add(ctx context.Context, payload *domain.Establis
 	return establishment, nil
 }
 
-func (e *EstablishmentManager) GetAllProfessionalsByEstablishmentId(ctx context.Context, establishmentId string) ([]domain.Professionals, *core.Exception) {
-	professionals, err := e.repository.GetAllProfessionalsByEstablishmentId(ctx, establishmentId)
+func (e *EstablishmentManager) GetAllProfessionalsByEstablishmentId(ctx context.Context, id string) ([]domain.Professionals, *core.Exception) {
+	professionals, err := e.repository.GetAllProfessionalsByEstablishmentId(ctx, id)
 	if err != nil {
 		return nil, core.Unexpected()
 	}
@@ -44,8 +44,8 @@ func (e *EstablishmentManager) GetAllProfessionalsByEstablishmentId(ctx context.
 	return professionals, nil
 }
 
-func (e *EstablishmentManager) UpdateEstablishmentById(ctx context.Context, establishmentId string, establishmentData *domain.Establishment) (*domain.Establishment, *core.Exception) {
-	establishment, err := e.repository.UpdateEstablishmentById(ctx, establishmentId, establishmentData)
+func (e *EstablishmentManager) UpdateEstablishmentById(ctx context.Context, id string, payload *domain.Establishment) (*domain.Establishment, *core.Exception) {
+	establishment, err := e.repository.UpdateEstablishmentById(ctx, id, payload)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("some error has been occurred trying update a establishment"))
 	}
@@ -53,8 +53,8 @@ func (e *EstablishmentManager) UpdateEstablishmentById(ctx context.Context, esta
 	return establishment, nil
 }
 
-func (e *EstablishmentManager) GetEstablishmentReport(ctx context.Context, establishmentId string) (*domain.EstablishmentMetrics, *core.Exception) {
-	stats, err := e.repository.GetEstablishmentReport(ctx, establishmentId)
+func (e *EstablishmentManager) GetEstablishmentReport(ctx context.Context, id string) (*domain.EstablishmentMetrics, *core.Exception) {
+	stats, err := e.repository.GetEstablishmentReport(ctx, id)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("some error has been occurred trying update a establishment"))
 	}
