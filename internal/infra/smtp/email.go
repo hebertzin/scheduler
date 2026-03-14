@@ -6,31 +6,40 @@ import (
 	"strings"
 )
 
-type Smtp struct {
-	From     string
+type SMPTConfig struct {
 	Port     string
 	Password string
 	Host     string
 }
 
-type SmptSendEmail struct {
+type SMPTSendEmail struct {
+	From    string
 	To      []string
 	Message string
 	Subject string
 }
 
-func (s Smtp) Send(email SmptSendEmail) error {
-	auth := smtp.PlainAuth("", s.From, s.Password, s.Host)
-	addr := s.Host + ":" + s.Port
-
-	msg := []byte("To: " + strings.Join(email.To, ",") + "\r\n" +
-		"Subject: " + email.Subject + "\r\n" +
-		"\r\n" +
-		email.Message + "\r\n")
-
-	err := smtp.SendMail(addr, auth, s.From, email.To, msg)
-	if err != nil {
-		return fmt.Errorf("erro ao enviar e-mail: %w", err)
+func NewSMPT(port string, password string, host string) *SMPTConfig {
+	return &SMPTConfig{
+		Port:     port,
+		Password: password,
+		Host:     host,
 	}
+}
+
+func (config SMPTConfig) Send(s SMPTSendEmail) error {
+	auth := smtp.PlainAuth("", s.From, config.Password, config.Host)
+	addr := config.Host + ":" + config.Port
+
+	msg := []byte("To: " + strings.Join(s.To, ",") + "\r\n" +
+		"Subject: " + s.Subject + "\r\n" +
+		"\r\n" +
+		s.Message + "\r\n")
+
+	err := smtp.SendMail(addr, auth, s.From, s.To, msg)
+	if err != nil {
+		return fmt.Errorf("some error has been ocurred send email: %w", err)
+	}
+
 	return nil
 }
