@@ -11,7 +11,7 @@ import (
 
 func ProfessionalFactory(db *gorm.DB, logger *logrus.Logger) domain.ProfessionalsController {
 	repo := repository.NewProfessionalsRepository(db, logger)
-	profissionalManager := usecases.NewProfissional(repo, logger)
+	profissionalManager := usecases.NewProfessional(repo, logger)
 
 	return controllers.NewProfessional(profissionalManager)
 }

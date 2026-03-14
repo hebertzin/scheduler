@@ -17,7 +17,7 @@ type (
 		Name           string `json:"name" validate:"required"`
 		Value          string `json:"value" validate:"required"`
 		Duration       string `json:"duration" validate:"required"`
-		ProfessionalId string `json:"professional_id" validate:"required"`
+		ProfessionalId string `json:"professionalId" validate:"required"`
 	}
 )
 

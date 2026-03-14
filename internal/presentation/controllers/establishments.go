@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
@@ -15,14 +14,12 @@ type (
 	}
 
 	establishmentRequest struct {
-		Name       string    `json:"name" validate:"required"`
-		City       string    `json:"city" validate:"required"`
-		State      string    `json:"state" validate:"required"`
-		PostalCode string    `json:"postal_code" validate:"required"`
-		Number     string    `json:"number" validate:"required"`
-		UserId     string    `json:"user_id" validate:"required"`
-		CreatedAt  time.Time `json:"created_at"`
-		UpdatedAt  time.Time `json:"updated_at"`
+		Name       string `json:"name" validate:"required"`
+		City       string `json:"city" validate:"required"`
+		State      string `json:"state" validate:"required"`
+		PostalCode string `json:"postalCode" validate:"required"`
+		Number     string `json:"number" validate:"required"`
+		UserId     string `json:"userId" validate:"required"`
 	}
 )
 
