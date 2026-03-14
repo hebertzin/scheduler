@@ -65,8 +65,8 @@ func (a *AccountManager) Add(ctx context.Context, payload *domain.Account) (*dom
 	return account, nil
 }
 
-func (a *AccountManager) FindAccountById(ctx context.Context, accountId string) (*domain.Account, *core.Exception) {
-	account, err := a.repository.FindAccountById(ctx, accountId)
+func (a *AccountManager) FindAccountById(ctx context.Context, id string) (*domain.Account, *core.Exception) {
+	account, err := a.repository.FindAccountById(ctx, id)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("error finding account"), core.WithError(err))
 	}

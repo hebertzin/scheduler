@@ -26,8 +26,8 @@ func (s *ProfessionalsAvailabilityManager) Add(ctx context.Context, availability
 	return availability, nil
 }
 
-func (s *ProfessionalsAvailabilityManager) GetProfessionalAvailabilityById(ctx context.Context, professionalId string) ([]domain.ProfessionalAvailability, *core.Exception) {
-	availability, err := s.repository.GetProfessionalAvailabilityById(ctx, professionalId)
+func (s *ProfessionalsAvailabilityManager) GetProfessionalAvailabilityById(ctx context.Context, id string) ([]domain.ProfessionalAvailability, *core.Exception) {
+	availability, err := s.repository.GetProfessionalAvailabilityById(ctx, id)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("error get professional availability"), core.WithError(err))
 	}

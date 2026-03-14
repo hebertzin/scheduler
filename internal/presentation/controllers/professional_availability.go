@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -16,10 +15,10 @@ type (
 	}
 
 	professionalAvailabilityRequest struct {
-		ProfessionalId uuid.UUID `json:"professional_id" validate:"required"`
-		DayOfWeek      string    `json:"day_of_week" validate:"required"`
-		StartTime      time.Time `json:"start_time" validate:"required"`
-		EndTime        time.Time `json:"end_time" validate:"required"`
+		ProfessionalId uuid.UUID `json:"professionalId" validate:"required"`
+		DayOfWeek      string    `json:"dayOfWeek" validate:"required"`
+		StartTime      string    `json:"startTime" validate:"required"`
+		EndTime        string    `json:"endTime" validate:"required"`
 	}
 )
 

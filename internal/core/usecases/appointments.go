@@ -23,8 +23,8 @@ func NewAppointment(repository domain.AppointmentRepository, logger *logrus.Logg
 	}
 }
 
-func (manager *AppointmentManager) Add(ctx context.Context, appointment *domain.Appointment) (*domain.Appointment, *core.Exception) {
-	existentAppointment, err := existsByStartAndEndTime(ctx, manager, appointment.StartTime, appointment.EndTime)
+func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appointment) (*domain.Appointment, *core.Exception) {
+	existentAppointment, err := existsByStartAndEndTime(ctx, manager, payload.StartTime, payload.EndTime)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("error when verify availability"))
 	}
@@ -33,7 +33,7 @@ func (manager *AppointmentManager) Add(ctx context.Context, appointment *domain.
 		return nil, core.Confilct(core.WithMessage("could not schedule appointment"))
 	}
 
-	appointment, err = manager.repository.Add(ctx, appointment)
+	appointment, err := manager.repository.Add(ctx, payload)
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("error creating appointment"), core.WithError(err))
 	}
