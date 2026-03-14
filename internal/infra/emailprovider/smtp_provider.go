@@ -31,6 +31,4 @@ func (config SMPTConfig) Send(s domain.EmailMessage) {
 		s.Message + "\r\n")
 
 	_ = smtp.SendMail(addr, auth, s.From, s.To, msg)
-
-	return
 }

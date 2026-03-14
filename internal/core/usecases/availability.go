@@ -30,5 +30,5 @@ func (manager AvailabilityManager) ExistByStartAndEndTime(ctx context.Context, s
 		return false, err
 	}
 
-	return exist != false, nil
+	return exist, nil
 }
