@@ -6,6 +6,7 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/infra/emailtemplates"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,12 +17,7 @@ type AccountManager struct {
 	emailProvider domain.EmailSender
 }
 
-func NewAccount(
-	repository domain.AccountRepository,
-	emailProvider domain.EmailSender,
-	logger *logrus.Logger,
-) domain.AccountUseCase {
-
+func NewAccount(repository domain.AccountRepository, emailProvider domain.EmailSender, logger *logrus.Logger) domain.AccountUseCase {
 	return &AccountManager{
 		repository:    repository,
 		emailProvider: emailProvider,
@@ -51,14 +47,17 @@ func (a *AccountManager) Add(ctx context.Context, payload *domain.Account) (*dom
 		return nil, core.Unexpected()
 	}
 
+	accountCreatedData := emailtemplates.AccountCreatedData{
+		Email: account.Email,
+	}
+
+	body, _ := emailtemplates.RenderAccountCreated(accountCreatedData)
+
 	message := domain.EmailMessage{
 		From:    "hebertsantosdeveloper@gmail.com",
 		To:      []string{account.Email},
-		Subject: "Confirm your account",
-		Message: `Hello, Thank you for creating your account.
-                  To activate your account, please confirm your email address by clicking the link below.
-                  If you did not create this account, you can safely ignore this email.
-                  Best regards.`,
+		Subject: emailtemplates.AccountCreatedSubject,
+		Message: body,
 	}
 
 	a.emailProvider.Send(message)
