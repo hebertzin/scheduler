@@ -5,16 +5,24 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/infra/smtp"
 	"github.com/sirupsen/logrus"
 )
 
 type AppointmentUseCase struct {
 	repository domain.AppointmentRepository
 	logger     *logrus.Logger
+	smptConfig *smtp.SMPTConfig
 }
 
-func NewAppointmentUseCase(repository domain.AppointmentRepository, logger *logrus.Logger) domain.AppointmentUseCase {
-	return &AppointmentUseCase{repository: repository, logger: logger}
+func NewAppointmentUseCase(repository domain.AppointmentRepository, logger *logrus.Logger, smptConfig *smtp.SMPTConfig) domain.AppointmentUseCase {
+	s := smtp.NewSMPT(smptConfig.Port, smptConfig.Password, smptConfig.Host)
+
+	return &AppointmentUseCase{
+		repository: repository,
+		logger:     logger,
+		smptConfig: s,
+	}
 }
 
 func (s *AppointmentUseCase) Add(ctx context.Context, appointment *domain.Appointment) (*domain.Appointment, *core.Exception) {
@@ -22,6 +30,18 @@ func (s *AppointmentUseCase) Add(ctx context.Context, appointment *domain.Appoin
 	if err != nil {
 		return nil, core.Unexpected(core.WithMessage("error creating appointment"), core.WithError(err))
 	}
+
+	message := smtp.SMPTSendEmail{
+		From:    "hebertsantosdeveloper@gmail.com",
+		To:      []string{appointment.Email},
+		Subject: "Appointment Confirmation",
+		Message: `Hello, Your appointment has been successfully scheduled.
+                 If you need to reschedule or cancel, please reply to this email or contact our support team.
+                Thank you.`,
+	}
+
+	_ = s.smptConfig.Send(message)
+
 	return appointment, nil
 }
 

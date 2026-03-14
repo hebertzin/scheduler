@@ -53,17 +53,19 @@ func (s *AccountUseCase) Add(ctx context.Context, payload *domain.Account) (*dom
 	if err != nil {
 		return nil, core.Unexpected()
 	}
+
 	message := smtp.SMPTSendEmail{
 		From:    "hebertsantosdeveloper@gmail.com",
 		To:      []string{account.Email},
-		Message: "Thank you for create your account, you can confirm your account in the link below",
-		Subject: "Account created",
+		Subject: "Confirm your account",
+		Message: `Hello, Thank you for creating your account.
+                  To activate your account, please confirm your email address by clicking the link below.
+                  If you did not create this account, you can safely ignore this email.
+                  Best regards.`,
 	}
 
-	err = s.smptConfig.Send(message)
-	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("error generating password hash"))
-	}
+	// if smpt fails, dont break the user flow
+	_ = s.smptConfig.Send(message)
 
 	return a, nil
 }
