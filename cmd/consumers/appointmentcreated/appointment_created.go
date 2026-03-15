@@ -111,16 +111,20 @@ func (c *AppointmentCreatedConsumer) Consume(ctx context.Context) error {
 }
 
 func (c *AppointmentCreatedConsumer) handleMessage(delivery amqp.Delivery) error {
-	var msg domain.Appointment
+	var event outbound.Event
+	if err := json.Unmarshal(delivery.Body, &event); err != nil {
+		return fmt.Errorf("invalid message payload: %w", err)
+	}
 
-	if err := json.Unmarshal(delivery.Body, &msg); err != nil {
+	var payload domain.Appointment
+	if err := json.Unmarshal(event.Payload, &payload); err != nil {
 		return fmt.Errorf("invalid message payload: %w", err)
 	}
 
 	data := emailtemplates.AppointmentConfirmationData{
-		Name:      msg.Email,
-		StartTime: msg.StartTime,
-		EndTime:   msg.EndTime,
+		Name:      payload.Email,
+		StartTime: payload.StartTime,
+		EndTime:   payload.EndTime,
 	}
 
 	body, err := emailtemplates.RenderAppointmentConfirmation(data)
@@ -130,7 +134,7 @@ func (c *AppointmentCreatedConsumer) handleMessage(delivery amqp.Delivery) error
 
 	message := domain.EmailMessage{
 		From:    "hebertsantosdeveloper@gmail.com",
-		To:      []string{msg.Email},
+		To:      []string{payload.Email},
 		Message: body,
 		Subject: "appointment confirmation",
 	}

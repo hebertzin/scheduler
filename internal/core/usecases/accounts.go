@@ -61,9 +61,11 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 		return nil, core.Unexpected()
 	}
 
-	e := outbound.Event{
-		Type:    eventconstants.AccountCreatedEventType,
-		Payload: account.Email,
+	e := inbound.Event{
+		Type: eventconstants.AccountCreatedEventType,
+		Payload: inbound.AccountCreatedEvent{
+			Email: account.Email,
+		},
 	}
 
 	_ = manager.messaging.Publish(ctx, e)

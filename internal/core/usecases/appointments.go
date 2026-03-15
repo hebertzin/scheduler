@@ -53,7 +53,7 @@ func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appo
 		return nil, core.Unexpected(core.WithMessage("error creating appointment"), core.WithError(err))
 	}
 
-	e := outbound.Event{
+	e := inbound.Event{
 		Type:    eventconstants.AppointmentCreatedEventType,
 		Payload: appointment,
 	}

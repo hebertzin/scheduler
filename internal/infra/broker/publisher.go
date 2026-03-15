@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -29,7 +29,7 @@ func NewPublisher(ch *amqp.Channel, publisherConfig PublishingConfig) *Broker {
 	}
 }
 
-func (b *Broker) Publish(ctx context.Context, event outbound.Event) error {
+func (b *Broker) Publish(ctx context.Context, event inbound.Event) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
 		return fmt.Errorf("marshal event payload: %w", err)

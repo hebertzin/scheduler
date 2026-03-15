@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/hebertzin/scheduler/internal/infra/emailtemplates"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -111,18 +112,22 @@ func (c *AccountCreatedConsumer) Consume(ctx context.Context) error {
 }
 
 func (c *AccountCreatedConsumer) handleMessage(delivery amqp.Delivery) error {
-	var msg domain.EmailMessage
-
-	if err := json.Unmarshal(delivery.Body, &msg); err != nil {
-		return fmt.Errorf("invalid message payload: %w", err)
+	var event outbound.Event
+	if err := json.Unmarshal(delivery.Body, &event); err != nil {
+		return fmt.Errorf("invalid event payload: %w", err)
 	}
 
-	if len(msg.To) == 0 {
-		return fmt.Errorf("message without recipients")
+	var payload inbound.AccountCreatedEvent
+	if err := json.Unmarshal(event.Payload, &payload); err != nil {
+		return fmt.Errorf("invalid account created payload: %w", err)
+	}
+
+	if payload.Email == "" {
+		return fmt.Errorf("payload without email")
 	}
 
 	data := emailtemplates.AccountCreatedData{
-		Email: msg.To[0],
+		Email: payload.Email,
 	}
 
 	body, err := emailtemplates.RenderAccountCreated(data)
@@ -131,9 +136,8 @@ func (c *AccountCreatedConsumer) handleMessage(delivery amqp.Delivery) error {
 	}
 
 	message := domain.EmailMessage{
-		To:      msg.To,
-		From:    msg.From,
-		Subject: msg.Subject,
+		To:      []string{payload.Email},
+		Subject: "Account created",
 		Message: body,
 	}
 
