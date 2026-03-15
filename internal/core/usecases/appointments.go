@@ -13,14 +13,14 @@ import (
 
 type AppointmentManager struct {
 	repository          outbound.AppointmentRepository
-	availabilityManager *AvailabilityManager
+	availabilityManager Availability
 	messaging           outbound.Publisher
 	logger              *logrus.Logger
 }
 
 func NewAppointment(
 	repository outbound.AppointmentRepository,
-	availabilityManager *AvailabilityManager,
+	availabilityManager Availability,
 	messaging outbound.Publisher,
 	logger *logrus.Logger,
 ) inbound.AppointmentUseCase {
