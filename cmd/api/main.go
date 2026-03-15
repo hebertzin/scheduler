@@ -14,19 +14,16 @@ import (
 	"github.com/hebertzin/scheduler/internal/infra/broker"
 	"github.com/hebertzin/scheduler/internal/infra/config/env"
 	"github.com/hebertzin/scheduler/internal/infra/config/logging"
-	"github.com/hebertzin/scheduler/internal/infra/consumers"
 	"github.com/hebertzin/scheduler/internal/infra/db"
-	"github.com/hebertzin/scheduler/internal/infra/emailprovider"
 	"github.com/hebertzin/scheduler/internal/infra/factory"
 	"github.com/hebertzin/scheduler/internal/presentation/middlewares"
-	"github.com/rabbitmq/amqp091-go"
-	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rabbitmq/amqp091-go"
+	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"gorm.io/gorm"
 )
 
 // @title Scheduler app
@@ -53,15 +50,6 @@ func main() {
 		logger.Println("error connecting to the broker")
 	}
 	defer b.Close()
-
-	emailSenderProvider := emailprovider.NewSMPT("5444", "some_password", "some_host")
-
-	accountCreatedConsumer, _ := consumers.NewAccountCreatedConsumer("amqp://guest:guest@localhost:5672", "account.created", emailSenderProvider, logger)
-
-	err = accountCreatedConsumer.Consume(context.Background())
-	if err != nil {
-		return
-	}
 
 	configureSwagger(config, r)
 
