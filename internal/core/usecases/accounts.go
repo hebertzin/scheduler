@@ -68,7 +68,12 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 		},
 	}
 
-	_ = manager.messaging.Publish(ctx, e)
+	err = manager.messaging.Publish(ctx, e)
+	if err != nil {
+		manager.logger.Println("Some error has been ocurred publishing the message in broker.", "account_use_case_manager")
+
+		return nil, errors.Unexpected(errors.WithMessage("cannot publish the message in broker"))
+	}
 
 	manager.logger.Println("Account create and message was published.", "account_use_case_manager")
 
