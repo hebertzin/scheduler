@@ -83,6 +83,8 @@ func (manager *AppointmentManager) GetAllAppointmentsByProfessionalId(ctx contex
 		return nil, core.Unexpected(core.WithMessage("error get all appointment by professional id"), core.WithError(err))
 	}
 
+	manager.logger.Info("Appointments retrieved successfully.", "use_case_manager")
+
 	return appointments, nil
 }
 
@@ -94,6 +96,8 @@ func (manager *AppointmentManager) GetAppointmentById(ctx context.Context, appoi
 		return nil, core.Unexpected(core.WithMessage("error get appointment by id"), core.WithError(err))
 	}
 
+	manager.logger.Info("Appointment retrieved successfully.", "use_case_manager")
+
 	return appointment, nil
 }
 
@@ -104,5 +108,8 @@ func (manager *AppointmentManager) DeleteAppointment(ctx context.Context, appoin
 
 		return core.Unexpected(core.WithMessage("error get appointment by id"), core.WithError(err))
 	}
+
+	manager.logger.Info("Appointment deleted successfully.", "use_case_manager")
+
 	return nil
 }

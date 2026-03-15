@@ -31,25 +31,31 @@ func NewAccount(
 	}
 }
 
-func (a *AccountManager) Add(ctx context.Context, payload *domain.Account) (*domain.Account, *core.Exception) {
+func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account) (*domain.Account, *core.Exception) {
 	isValidEmail := validateAccountEmail(payload.Email)
 	if !isValidEmail {
+		manager.logger.Error("Error validating email.", "account_use_case_manager")
+
 		return nil, core.BadRequest(core.WithMessage("invalid email"))
 	}
 
-	account, _ := a.repository.FindAccountByEmail(ctx, payload.Email)
+	account, _ := manager.repository.FindAccountByEmail(ctx, payload.Email)
 	if account == nil {
 		return nil, core.Confilct(core.WithMessage("account already exists in the database"))
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
 	if err != nil {
+		manager.logger.Error("Error generating password hash.", "account_use_case_manager", "err", err.Error())
+
 		return nil, core.Unexpected(core.WithMessage("error generating password hash"))
 	}
 	payload.Password = string(hash)
 
-	account, err = a.repository.Add(ctx, payload)
+	account, err = manager.repository.Add(ctx, payload)
 	if err != nil {
+		manager.logger.Error("Error saving account to repository.", "account_use_case_manager", "err", err.Error())
+
 		return nil, core.Unexpected()
 	}
 
@@ -66,34 +72,48 @@ func (a *AccountManager) Add(ctx context.Context, payload *domain.Account) (*dom
 		Message: body,
 	}
 
-	a.emailProvider.Send(message)
+	manager.emailProvider.Send(message)
+
+	manager.logger.Println("Account create and email sent successfully.", "account_use_case_manager")
 
 	return account, nil
 }
 
-func (a *AccountManager) FindAccountById(ctx context.Context, id string) (*domain.Account, *core.Exception) {
-	account, err := a.repository.FindAccountById(ctx, id)
+func (manager *AccountManager) FindAccountById(ctx context.Context, id string) (*domain.Account, *core.Exception) {
+	account, err := manager.repository.FindAccountById(ctx, id)
 	if err != nil {
+		manager.logger.Error("Error finding account by id.", "account_use_case_manager", "err", err.Error())
+
 		return nil, core.Unexpected(core.WithMessage("error finding account"), core.WithError(err))
 	}
 
-	return account, nil
-}
-
-func (a *AccountManager) FindAllAccounts(ctx context.Context) ([]domain.Account, *core.Exception) {
-	account, err := a.repository.FindAllAccounts(ctx)
-	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("some error has been ocurred"))
-	}
+	manager.logger.Info("Account found successfully.", "account_use_case_manager")
 
 	return account, nil
 }
 
-func (a *AccountManager) FindAllEstablishmentsByAccountId(ctx context.Context, accountId string) ([]domain.Establishment, *core.Exception) {
-	establishments, err := a.repository.FindAllEstablishmentsByAccountId(ctx, accountId)
+func (manager *AccountManager) FindAllAccounts(ctx context.Context) ([]domain.Account, *core.Exception) {
+	account, err := manager.repository.FindAllAccounts(ctx)
 	if err != nil {
+		manager.logger.Error("Error finding all accounts.", "account_use_case_manager", "err", err.Error())
+
 		return nil, core.Unexpected(core.WithMessage("some error has been ocurred"))
 	}
+
+	manager.logger.Info("All accounts retrieved successfully.", "account_use_case_manager")
+
+	return account, nil
+}
+
+func (manager *AccountManager) FindAllEstablishmentsByAccountId(ctx context.Context, accountId string) ([]domain.Establishment, *core.Exception) {
+	establishments, err := manager.repository.FindAllEstablishmentsByAccountId(ctx, accountId)
+	if err != nil {
+		manager.logger.Error("Error finding establishments by account id.", "account_use_case_manager", "err", err.Error())
+
+		return nil, core.Unexpected(core.WithMessage("some error has been ocurred"))
+	}
+
+	manager.logger.Info("Establishments retrieved successfully.", "account_use_case_manager")
 
 	return establishments, nil
 }
