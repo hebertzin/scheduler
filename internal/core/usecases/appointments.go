@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
@@ -10,6 +9,8 @@ import (
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/sirupsen/logrus"
 )
+
+const appointmentCreatedEventType = "appointment_created"
 
 type AppointmentManager struct {
 	repository          outbound.AppointmentRepository
@@ -53,12 +54,13 @@ func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appo
 		return nil, core.Unexpected(core.WithMessage("error creating appointment"), core.WithError(err))
 	}
 
-	bytes, err := json.Marshal(payload)
-	if err != nil {
-		return nil, core.BadRequest()
+	e := outbound.Event{
+		Type:    appointmentCreatedEventType,
+		Payload: appointment,
 	}
 
-	manager.messaging.Publish(ctx, bytes)
+	_ = manager.messaging.Publish(ctx, e)
+
 	manager.logger.Info("Appointment created and message was published")
 
 	return appointment, nil

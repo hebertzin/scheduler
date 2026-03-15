@@ -1,7 +1,9 @@
 package outbound
 
-import "context"
+import (
+	"context"
+)
 
 type Publisher interface {
-	Publish(ctx context.Context, message []byte)
+	Publish(ctx context.Context, event Event) error
 }

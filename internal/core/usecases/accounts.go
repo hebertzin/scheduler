@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"encoding/json"
 	"regexp"
 
 	"github.com/hebertzin/scheduler/internal/core"
@@ -12,6 +11,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
+
+const accountCreatedEventType = "account_created"
 
 type AccountManager struct {
 	repository outbound.AccountRepository
@@ -59,14 +60,12 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 		return nil, core.Unexpected()
 	}
 
-	bytes, err := json.Marshal(payload)
-	if err != nil {
-		manager.logger.Error("Error saving account to repository.", "account_use_case_manager", "err", err.Error())
-
-		return nil, core.BadRequest()
+	e := outbound.Event{
+		Type:    accountCreatedEventType,
+		Payload: account.Email,
 	}
 
-	manager.messaging.Publish(ctx, bytes)
+	_ = manager.messaging.Publish(ctx, e)
 
 	manager.logger.Println("Account create and message was published.", "account_use_case_manager")
 
