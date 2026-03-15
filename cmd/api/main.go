@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,13 +10,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
-	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
+	"github.com/hebertzin/scheduler/internal/domain/eventconstants"
+	"github.com/hebertzin/scheduler/internal/infra/broker"
 	"github.com/hebertzin/scheduler/internal/infra/config/env"
 	"github.com/hebertzin/scheduler/internal/infra/config/logging"
 	"github.com/hebertzin/scheduler/internal/infra/db"
-	"github.com/hebertzin/scheduler/internal/infra/emailprovider"
 	"github.com/hebertzin/scheduler/internal/infra/factory"
 	"github.com/hebertzin/scheduler/internal/presentation/middlewares"
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
@@ -39,19 +39,24 @@ import (
 func main() {
 	config, _ := env.LoadConfiguration("/configs/config.json")
 
+	logger := configureLogging(config)
+
 	database := db.ConnectDatabase(config)
 
 	r := createRouter()
+
+	b := broker.NewRabbitMQ("amqp://guest:guest@localhost:5672")
+	err := b.Connect()
+	if err != nil {
+		logger.Println("error connecting to the broker")
+	}
+	defer b.Close()
 
 	configureSwagger(config, r)
 
 	configureMigration(config, database)
 
 	cofigureMetrics(config, r)
-
-	logger := configureLogging(config)
-
-	smtpProvider := emailprovider.NewSMPT("", "", "")
 
 	startAppointmentAPI(r, database, logger)
 
@@ -63,7 +68,7 @@ func main() {
 
 	startProfessionalAvailabilityAPI(r, database, logger)
 
-	startAccountAPI(r, database, logger, smtpProvider)
+	startAccountAPI(r, database, logger, b.Channel)
 
 	srv := http.Server{
 		Addr:    config.Port,
@@ -72,31 +77,38 @@ func main() {
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
+			logger.Println("listen: %s\n", err)
 		}
 	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutdown Server ...")
+	logger.Println("Shutdown Server ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Println("Server Shutdown:", err)
+		logger.Println("Server Shutdown:", err)
 	}
 
 	<-ctx.Done()
-	log.Println("Server exiting")
+	logger.Println("Server exiting")
 }
 
 func createRouter() *gin.Engine {
 	return gin.Default()
 }
 
-func startAccountAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, sender outbound.EmailSender) {
-	accountFactory := factory.AccountFactory(db, logger)
+func startAccountAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, channel *amqp091.Channel) {
+	publisherConfig := broker.PublishingConfig{
+		RoutingKey:   eventconstants.AccountRoutingKey,
+		ExchangeName: eventconstants.AccountExchangeName,
+	}
+
+	accountPublisher := broker.NewPublisher(channel, publisherConfig)
+
+	accountFactory := factory.AccountFactory(db, logger, accountPublisher)
 
 	v1 := router.Group("/api/v1")
 	{

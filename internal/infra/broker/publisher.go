@@ -9,16 +9,23 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type Broker struct {
-	broker       *amqp.Channel
-	routingKey   string
-	exchangeName string
+type PublishingConfig struct {
+	RoutingKey   string
+	ExchangeName string
 }
 
-func NewPublisher(routingKey, exchangeName string) *Broker {
+type Broker struct {
+	ch              *amqp.Channel
+	publisherConfig PublishingConfig
+}
+
+func NewPublisher(ch *amqp.Channel, publisherConfig PublishingConfig) *Broker {
 	return &Broker{
-		routingKey:   routingKey,
-		exchangeName: exchangeName,
+		ch: ch,
+		publisherConfig: PublishingConfig{
+			RoutingKey:   publisherConfig.RoutingKey,
+			ExchangeName: publisherConfig.ExchangeName,
+		},
 	}
 }
 
@@ -33,7 +40,7 @@ func (b *Broker) Publish(ctx context.Context, event outbound.Event) error {
 		return fmt.Errorf("marshal envelope: %w", err)
 	}
 
-	if err := b.broker.PublishWithContext(
+	if err := b.ch.PublishWithContext(
 		ctx,
 		b.exchangeName,
 		b.routingKey,

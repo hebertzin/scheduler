@@ -11,10 +11,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func AccountFactory(db *gorm.DB, logger *logrus.Logger) outbound.AccountController {
+func AccountFactory(db *gorm.DB, logger *logrus.Logger, publisher outbound.Publisher) outbound.AccountController {
 	repo := repository.NewAccountsRepository(db, logger)
 	bcryptHasher := security.NewBcryptHasher(bcrypt.DefaultCost)
-	accountManager := usecases.NewAccount(repo, nil, bcryptHasher, logger)
+	accountManager := usecases.NewAccount(repo, publisher, bcryptHasher, logger)
 
 	return controllers.NewAccount(accountManager)
 }

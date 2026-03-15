@@ -1,4 +1,6 @@
 package eventconstants
 
-const AccountCreatedEventType = "account_created"
+const AccountCreatedEventType = "account.created"
 const AppointmentCreatedEventType = "appointment_created"
+const AccountExchangeName = "accounts.exchange"
+const AccountRoutingKey = "accounts.created"
