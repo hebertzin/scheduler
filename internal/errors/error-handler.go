@@ -1,4 +1,4 @@
-package core
+package errors
 
 type Exception struct {
 	Code    int    `json:"code"`

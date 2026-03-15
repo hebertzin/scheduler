@@ -3,10 +3,10 @@ package usecases
 import (
 	"context"
 
-	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
+	"github.com/hebertzin/scheduler/internal/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,47 +19,67 @@ func NewEstablishment(repository outbound.EstablishmentRepository, logger *logru
 	return &EstablishmentManager{repository: repository, logger: logger}
 }
 
-func (e *EstablishmentManager) Add(ctx context.Context, payload *domain.Establishment) (*domain.Establishment, *core.Exception) {
-	establishment, err := e.repository.Add(ctx, payload)
+func (manager *EstablishmentManager) Add(ctx context.Context, payload *domain.Establishment) (*domain.Establishment, *errors.Exception) {
+	establishment, err := manager.repository.Add(ctx, payload)
 	if err != nil {
-		return nil, core.Unexpected()
+		manager.logger.Error("Error creating establishment.", "establishment_use_case", "err", err.Error())
+
+		return nil, errors.Unexpected()
 	}
+
+	manager.logger.Info("Establishment created successfully.", "establishment_use_case")
 
 	return establishment, nil
 }
 
-func (e *EstablishmentManager) FindEstablishmentById(ctx context.Context, id string) (*domain.Establishment, *core.Exception) {
-	establishment, err := e.repository.FindEstablishmentById(ctx, id)
+func (manager *EstablishmentManager) FindEstablishmentById(ctx context.Context, id string) (*domain.Establishment, *errors.Exception) {
+	establishment, err := manager.repository.FindEstablishmentById(ctx, id)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("error finding establishment"), core.WithError(err))
+		manager.logger.Error("Error finding establishment by id.", "establishment_use_case", "err", err.Error())
+
+		return nil, errors.Unexpected(errors.WithMessage("error finding establishment"), errors.WithError(err))
 	}
+
+	manager.logger.Info("Establishment found successfully.", "establishment_use_case")
 
 	return establishment, nil
 }
 
-func (e *EstablishmentManager) GetAllProfessionalsByEstablishmentId(ctx context.Context, id string) ([]domain.Professionals, *core.Exception) {
-	professionals, err := e.repository.GetAllProfessionalsByEstablishmentId(ctx, id)
+func (manager *EstablishmentManager) GetAllProfessionalsByEstablishmentId(ctx context.Context, id string) ([]domain.Professionals, *errors.Exception) {
+	professionals, err := manager.repository.GetAllProfessionalsByEstablishmentId(ctx, id)
 	if err != nil {
-		return nil, core.Unexpected()
+		manager.logger.Error("Error getting professionals by establishment id.", "establishment_use_case", "err", err.Error())
+
+		return nil, errors.Unexpected()
 	}
+
+	manager.logger.Info("Professionals retrieved successfully.", "establishment_use_case")
 
 	return professionals, nil
 }
 
-func (e *EstablishmentManager) UpdateEstablishmentById(ctx context.Context, id string, payload *domain.Establishment) (*domain.Establishment, *core.Exception) {
-	establishment, err := e.repository.UpdateEstablishmentById(ctx, id, payload)
+func (manager *EstablishmentManager) UpdateEstablishmentById(ctx context.Context, id string, payload *domain.Establishment) (*domain.Establishment, *errors.Exception) {
+	establishment, err := manager.repository.UpdateEstablishmentById(ctx, id, payload)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("some error has been occurred trying update a establishment"))
+		manager.logger.Error("Error updating establishment.", "establishment_use_case", "err", err.Error())
+
+		return nil, errors.Unexpected(errors.WithMessage("some error has been occurred trying update a establishment"))
 	}
+
+	manager.logger.Info("Establishment updated successfully.", "establishment_use_case")
 
 	return establishment, nil
 }
 
-func (e *EstablishmentManager) GetEstablishmentReport(ctx context.Context, id string) (*domain.EstablishmentMetrics, *core.Exception) {
-	stats, err := e.repository.GetEstablishmentReport(ctx, id)
+func (manager *EstablishmentManager) GetEstablishmentReport(ctx context.Context, id string) (*domain.EstablishmentMetrics, *errors.Exception) {
+	stats, err := manager.repository.GetEstablishmentReport(ctx, id)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("some error has been occurred trying update a establishment"))
+		manager.logger.Error("Error getting establishment report.", "establishment_use_case", "err", err.Error())
+
+		return nil, errors.Unexpected(errors.WithMessage("some error has been occurred trying update a establishment"))
 	}
+
+	manager.logger.Info("Establishment report retrieved successfully.", "establishment_use_case")
 
 	metrics := domain.EstablishmentMetrics{
 		TotalProfessionals:    stats.TotalProfessionals,

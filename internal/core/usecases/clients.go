@@ -3,27 +3,31 @@ package usecases
 import (
 	"context"
 
-	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
+	"github.com/hebertzin/scheduler/internal/errors"
 	"github.com/sirupsen/logrus"
 )
 
-type ClientUseCase struct {
+type ClientManager struct {
 	repository inbound.ClientUseCase
 	logger     *logrus.Logger
 }
 
 func NewClientUseCase(repository outbound.ClientRepository, logger *logrus.Logger) inbound.ClientUseCase {
-	return &ClientUseCase{repository: repository, logger: logger}
+	return &ClientManager{repository: repository, logger: logger}
 }
 
-func (s *ClientUseCase) Add(ctx context.Context, account *domain.Client) (*domain.Client, *core.Exception) {
+func (s *ClientManager) Add(ctx context.Context, account *domain.Client) (*domain.Client, *errors.Exception) {
 	client, err := s.repository.Add(ctx, account)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("error creating client"), core.WithError(err))
+		s.logger.Error("Error creating client.", "client_use_case", "err", err.Error())
+
+		return nil, errors.Unexpected(errors.WithMessage("error creating client"), errors.WithError(err))
 	}
+
+	s.logger.Info("Client created successfully.", "client_use_case")
 
 	return client, nil
 }

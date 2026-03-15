@@ -28,27 +28,27 @@ func (repo *AppointmentDatabaseRepository) Add(ctx context.Context, appointment 
 	return appointment, nil
 }
 
-func (repo *AppointmentDatabaseRepository) GetAllAppointmentsByProfessionalId(ctx context.Context, professional_id string) ([]domain.Appointment, error) {
+func (repo *AppointmentDatabaseRepository) GetAllAppointmentsByProfessionalId(ctx context.Context, professionalId string) ([]domain.Appointment, error) {
 	var appointments []domain.Appointment
-	err := repo.db.WithContext(ctx).Find(&appointments).Error
+	err := repo.db.WithContext(ctx).Find(&appointments).Where("professionalId = ?", professionalId).Error
 	if err != nil {
 		return nil, err
 	}
 	return appointments, nil
 }
 
-func (repo *AppointmentDatabaseRepository) GetAppointmentById(ctx context.Context, appointment_id string) (*domain.Appointment, error) {
+func (repo *AppointmentDatabaseRepository) GetAppointmentById(ctx context.Context, appointmentId string) (*domain.Appointment, error) {
 	var appointment domain.Appointment
 	if err := repo.db.WithContext(ctx).
-		Where("id = ?", appointment_id).
+		Where("id = ?", appointmentId).
 		First(&appointment).Error; err != nil {
 		return nil, err
 	}
 	return &appointment, nil
 }
 
-func (repo *AppointmentDatabaseRepository) DeleteAppointment(ctx context.Context, appointment_id string) error {
-	err := repo.db.WithContext(ctx).Where("id = ?", appointment_id).Delete(&appointment_id).Error
+func (repo *AppointmentDatabaseRepository) DeleteAppointment(ctx context.Context, appointmentId string) error {
+	err := repo.db.WithContext(ctx).Where("id = ?", appointmentId).Delete(&appointmentId).Error
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (repo *AppointmentDatabaseRepository) ExistsByStartAndEndTime(
 
 	err := repo.db.WithContext(ctx).
 		Model(&domain.Appointment{}).
-		Where("start_time = ? AND end_time = ?", startTime, endTime).
+		Where("startTime = ? AND endTime = ?", startTime, endTime).
 		Count(&count).Error
 
 	if err != nil {
