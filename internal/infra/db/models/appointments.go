@@ -12,7 +12,9 @@ type Appointment struct {
 	Professional   Professional `gorm:"foreignKey:ProfessionalID"`
 	ServiceID      uuid.UUID    `gorm:"type:uuid;not null"`
 	Service        Services     `gorm:"foreignKey:ServiceID"`
-	ScheduledDate  time.Time    `gorm:"not null"`
+	DayOfWeek      string       `gorm:"not null"`
+	StartTime      string       `gorm:"size:100"`
+	EndTime        string       `gorm:"size:20"`
 	Email          string       `gorm:"size:100"`
 	Phone          string       `gorm:"size:20"`
 	Notes          string       `gorm:"size:255"`
