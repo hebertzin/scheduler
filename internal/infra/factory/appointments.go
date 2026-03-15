@@ -11,10 +11,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func AppointmentFactory(db *gorm.DB, logger *logrus.Logger) outbound.AppointmentController {
+func AppointmentFactory(db *gorm.DB, logger *logrus.Logger, publisher outbound.Publisher) outbound.AppointmentController {
 	repo := repository.NewAppointmentRepository(db, logger)
 	availabilityManager := usecases.NewAvailability(repo)
-	appointmentManager := usecases.NewAppointment(repo, availabilityManager, nil, logger)
+	appointmentManager := usecases.NewAppointment(repo, availabilityManager, publisher, logger)
 
 	return controllers.NewAppointment(appointmentManager)
 

@@ -58,7 +58,9 @@ func main() {
 
 	cofigureMetrics(config, r)
 
-	startAppointmentAPI(r, database, logger)
+	startAppointmentAPI(r, database, logger, b.Channel)
+
+	startAccountAPI(r, database, logger, b.Channel)
 
 	startEstablishmentAPI(r, database, logger)
 
@@ -67,8 +69,6 @@ func main() {
 	startServicesAPI(r, database, logger)
 
 	startProfessionalAvailabilityAPI(r, database, logger)
-
-	startAccountAPI(r, database, logger, b.Channel)
 
 	srv := http.Server{
 		Addr:    config.Port,
@@ -101,12 +101,12 @@ func createRouter() *gin.Engine {
 }
 
 func startAccountAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, channel *amqp091.Channel) {
-	publisherConfig := broker.PublishingConfig{
+	accountPublisherConfig := broker.PublishingConfig{
 		RoutingKey:   eventconstants.AccountRoutingKey,
 		ExchangeName: eventconstants.AccountExchangeName,
 	}
 
-	accountPublisher := broker.NewPublisher(channel, publisherConfig)
+	accountPublisher := broker.NewPublisher(channel, accountPublisherConfig)
 
 	accountFactory := factory.AccountFactory(db, logger, accountPublisher)
 
@@ -120,8 +120,15 @@ func startAccountAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, cha
 
 }
 
-func startAppointmentAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger) {
-	appointmentFactory := factory.AppointmentFactory(db, logger)
+func startAppointmentAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, channel *amqp091.Channel) {
+	appointmentPublisherConfig := broker.PublishingConfig{
+		RoutingKey:   eventconstants.AppointmentRoutingKey,
+		ExchangeName: eventconstants.AppointmentExchange,
+	}
+
+	appointmentPublisher := broker.NewPublisher(channel, appointmentPublisherConfig)
+
+	appointmentFactory := factory.AppointmentFactory(db, logger, appointmentPublisher)
 	v1 := router.Group("/api/v1")
 	{
 		v1.POST("/appointments", appointmentFactory.Add)
