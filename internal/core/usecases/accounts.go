@@ -2,32 +2,32 @@ package usecases
 
 import (
 	"context"
+	"encoding/json"
 	"regexp"
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
-	"github.com/hebertzin/scheduler/internal/infra/emailtemplates"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AccountManager struct {
-	repository    outbound.AccountRepository
-	logger        *logrus.Logger
-	emailProvider outbound.EmailSender
+	repository outbound.AccountRepository
+	messaging  outbound.Publisher
+	logger     *logrus.Logger
 }
 
 func NewAccount(
 	repository outbound.AccountRepository,
-	emailProvider outbound.EmailSender,
+	publisher outbound.Publisher,
 	logger *logrus.Logger,
 ) inbound.AccountUseCase {
 	return &AccountManager{
-		repository:    repository,
-		emailProvider: emailProvider,
-		logger:        logger,
+		repository: repository,
+		messaging:  publisher,
+		logger:     logger,
 	}
 }
 
@@ -59,23 +59,16 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 		return nil, core.Unexpected()
 	}
 
-	accountCreatedData := emailtemplates.AccountCreatedData{
-		Email: account.Email,
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		manager.logger.Error("Error saving account to repository.", "account_use_case_manager", "err", err.Error())
+
+		return nil, core.BadRequest()
 	}
 
-	body, _ := emailtemplates.RenderAccountCreated(accountCreatedData)
+	manager.messaging.Publish(ctx, bytes)
 
-	message := domain.EmailMessage{
-		From:    "hebertsantosdeveloper@gmail.com",
-		To:      []string{account.Email},
-		Subject: emailtemplates.AccountCreatedSubject,
-		Message: body,
-	}
-
-	// this is sync (change to async later)
-	manager.emailProvider.Send(message)
-
-	manager.logger.Println("Account create and email sent successfully.", "account_use_case_manager")
+	manager.logger.Println("Account create and message was published.", "account_use_case_manager")
 
 	return account, nil
 }

@@ -2,33 +2,32 @@ package usecases
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
-	"github.com/hebertzin/scheduler/internal/infra/emailtemplates"
-
 	"github.com/sirupsen/logrus"
 )
 
 type AppointmentManager struct {
 	repository          outbound.AppointmentRepository
 	availabilityManager *AvailabilityManager
-	emailProvider       outbound.EmailSender
+	messaging           outbound.Publisher
 	logger              *logrus.Logger
 }
 
 func NewAppointment(
 	repository outbound.AppointmentRepository,
 	availabilityManager *AvailabilityManager,
+	messaging outbound.Publisher,
 	logger *logrus.Logger,
-	emailProvider outbound.EmailSender,
 ) inbound.AppointmentUseCase {
 	return &AppointmentManager{
 		repository:          repository,
 		availabilityManager: availabilityManager,
-		emailProvider:       emailProvider,
+		messaging:           messaging,
 		logger:              logger,
 	}
 }
@@ -42,7 +41,7 @@ func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appo
 	}
 
 	if exists {
-		manager.logger.Error("Time slot not available, time slot already scheduled.", "use_case_manager", "err", err.Error())
+		manager.logger.Error("Time slot not available, time slot already scheduled.", "use_case_manager")
 
 		return nil, core.Confilct(core.WithMessage("It was not possible to schedule."))
 	}
@@ -54,24 +53,14 @@ func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appo
 		return nil, core.Unexpected(core.WithMessage("error creating appointment"), core.WithError(err))
 	}
 
-	appointmentConfirmation := emailtemplates.AppointmentConfirmationData{
-		Name:      appointment.Email,
-		StartTime: appointment.StartTime,
-		EndTime:   appointment.EndTime,
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		return nil, core.BadRequest()
 	}
 
-	body, _ := emailtemplates.RenderAppointmentConfirmation(appointmentConfirmation)
+	manager.messaging.Publish(ctx, bytes)
+	manager.logger.Info("Appointment created and message was published")
 
-	message := domain.EmailMessage{
-		From:    "hebertsantosdeveloper@gmail.com",
-		To:      []string{appointment.Email},
-		Subject: emailtemplates.AppointmentConfirmationSubject,
-		Message: body,
-	}
-
-	manager.emailProvider.Send(message)
-
-	manager.logger.Println("Appointment created and confirmation email was sent")
 	return appointment, nil
 }
 

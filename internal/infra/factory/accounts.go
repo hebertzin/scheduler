@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func AccountFactory(db *gorm.DB, logger *logrus.Logger, senderEmail outbound.EmailSender) outbound.AccountController {
+func AccountFactory(db *gorm.DB, logger *logrus.Logger) outbound.AccountController {
 	repo := repository.NewAccountsRepository(db, logger)
-	accountManager := usecases.NewAccount(repo, senderEmail, logger)
+	accountManager := usecases.NewAccount(repo, nil, logger)
 
 	return controllers.NewAccount(accountManager)
 }

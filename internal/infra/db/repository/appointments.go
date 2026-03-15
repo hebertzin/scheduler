@@ -28,9 +28,9 @@ func (repo *AppointmentDatabaseRepository) Add(ctx context.Context, appointment 
 	return appointment, nil
 }
 
-func (repo *AppointmentDatabaseRepository) GetAllAppointmentsByProfessionalId(ctx context.Context) ([]domain.Appointment, error) {
+func (repo *AppointmentDatabaseRepository) GetAllAppointmentsByProfessionalId(ctx context.Context, professionalId string) ([]domain.Appointment, error) {
 	var appointments []domain.Appointment
-	err := repo.db.WithContext(ctx).Find(&appointments).Error
+	err := repo.db.WithContext(ctx).Find(&appointments).Where("professionalId = ?", professionalId).Error
 	if err != nil {
 		return nil, err
 	}
