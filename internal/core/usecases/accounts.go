@@ -6,18 +6,24 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
+	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/hebertzin/scheduler/internal/infra/emailtemplates"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AccountManager struct {
-	repository    domain.AccountRepository
+	repository    outbound.AccountRepository
 	logger        *logrus.Logger
-	emailProvider domain.EmailSender
+	emailProvider outbound.EmailSender
 }
 
-func NewAccount(repository domain.AccountRepository, emailProvider domain.EmailSender, logger *logrus.Logger) domain.AccountUseCase {
+func NewAccount(
+	repository outbound.AccountRepository,
+	emailProvider outbound.EmailSender,
+	logger *logrus.Logger,
+) inbound.AccountUseCase {
 	return &AccountManager{
 		repository:    repository,
 		emailProvider: emailProvider,
@@ -61,6 +67,7 @@ func (a *AccountManager) Add(ctx context.Context, payload *domain.Account) (*dom
 	}
 
 	a.emailProvider.Send(message)
+
 	return account, nil
 }
 

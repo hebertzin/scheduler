@@ -1,22 +1,16 @@
-package smtp
+package emailprovider
 
 import (
-	"fmt"
 	"net/smtp"
 	"strings"
+
+	"github.com/hebertzin/scheduler/internal/domain"
 )
 
 type SMPTConfig struct {
 	Port     string
 	Password string
 	Host     string
-}
-
-type SMPTSendEmail struct {
-	From    string
-	To      []string
-	Message string
-	Subject string
 }
 
 func NewSMPT(port string, password string, host string) *SMPTConfig {
@@ -27,7 +21,7 @@ func NewSMPT(port string, password string, host string) *SMPTConfig {
 	}
 }
 
-func (config SMPTConfig) Send(s SMPTSendEmail) error {
+func (config SMPTConfig) Send(s domain.EmailMessage) {
 	auth := smtp.PlainAuth("", s.From, config.Password, config.Host)
 	addr := config.Host + ":" + config.Port
 
@@ -36,10 +30,5 @@ func (config SMPTConfig) Send(s SMPTSendEmail) error {
 		"\r\n" +
 		s.Message + "\r\n")
 
-	err := smtp.SendMail(addr, auth, s.From, s.To, msg)
-	if err != nil {
-		return fmt.Errorf("some error has been ocurred send email: %w", err)
-	}
-
-	return nil
+	_ = smtp.SendMail(addr, auth, s.From, s.To, msg)
 }

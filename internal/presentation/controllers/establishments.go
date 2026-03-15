@@ -5,12 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 )
 
 type (
 	EstablishmentHandler struct {
 		BaseHandler
-		manager domain.EstablishmentUseCase
+		manager inbound.EstablishmentUseCase
 	}
 
 	establishmentRequest struct {
@@ -23,7 +24,7 @@ type (
 	}
 )
 
-func NewEstablishment(manager domain.EstablishmentUseCase) *EstablishmentHandler {
+func NewEstablishment(manager inbound.EstablishmentUseCase) *EstablishmentHandler {
 	return &EstablishmentHandler{manager: manager}
 }
 

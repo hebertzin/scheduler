@@ -5,15 +5,17 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
+	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/sirupsen/logrus"
 )
 
 type ClientUseCase struct {
-	repository domain.ClientUseCase
+	repository inbound.ClientUseCase
 	logger     *logrus.Logger
 }
 
-func NewClientUseCase(repository domain.ClientRepository, logger *logrus.Logger) domain.ClientUseCase {
+func NewClientUseCase(repository outbound.ClientRepository, logger *logrus.Logger) inbound.ClientUseCase {
 	return &ClientUseCase{repository: repository, logger: logger}
 }
 

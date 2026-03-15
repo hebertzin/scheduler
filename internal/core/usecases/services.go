@@ -5,15 +5,17 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
+	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/sirupsen/logrus"
 )
 
 type ServicesManger struct {
-	repository domain.ServicesRepository
+	repository outbound.ServicesRepository
 	logger     *logrus.Logger
 }
 
-func NewServices(repository domain.ServicesRepository, logger *logrus.Logger) domain.ServicesUseCase {
+func NewServices(repository outbound.ServicesRepository, logger *logrus.Logger) inbound.ServicesUseCase {
 	return &ServicesManger{repository: repository, logger: logger}
 }
 

@@ -5,12 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 )
 
 type (
 	ProfessionalsHandler struct {
 		BaseHandler
-		manager domain.ProfessionalsUseCase
+		manager inbound.ProfessionalsUseCase
 	}
 
 	professionalRequest struct {
@@ -20,7 +21,7 @@ type (
 	}
 )
 
-func NewProfessional(manager domain.ProfessionalsUseCase) *ProfessionalsHandler {
+func NewProfessional(manager inbound.ProfessionalsUseCase) *ProfessionalsHandler {
 	return &ProfessionalsHandler{manager: manager}
 }
 

@@ -11,10 +11,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/hebertzin/scheduler/internal/infra/config/env"
 	"github.com/hebertzin/scheduler/internal/infra/config/logging"
 	"github.com/hebertzin/scheduler/internal/infra/db"
-	"github.com/hebertzin/scheduler/internal/presentation/router"
+	"github.com/hebertzin/scheduler/internal/infra/emailprovider"
+	"github.com/hebertzin/scheduler/internal/infra/factory"
+	"github.com/hebertzin/scheduler/internal/presentation/middlewares"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
@@ -35,13 +38,32 @@ import (
 // @BasePath /api/v1
 func main() {
 	config, _ := env.LoadConfiguration("/configs/config.json")
+
 	database := db.ConnectDatabase(config)
+
 	r := createRouter()
+
 	configureSwagger(config, r)
+
 	configureMigration(config, database)
+
 	cofigureMetrics(config, r)
-	loggging := configureLogging(config)
-	router.StartApi(r, database, loggging)
+
+	logger := configureLogging(config)
+
+	smtpProvider := emailprovider.NewSMPT("", "", "")
+
+	startAppointmentAPI(r, database, logger)
+
+	startEstablishmentAPI(r, database, logger)
+
+	startProfessionalsAPI(r, database, logger)
+
+	startServicesAPI(r, database, logger)
+
+	startProfessionalAvailabilityAPI(r, database, logger)
+
+	startAccountAPI(r, database, logger, smtpProvider)
 
 	srv := http.Server{
 		Addr:    config.Port,
@@ -71,6 +93,75 @@ func main() {
 
 func createRouter() *gin.Engine {
 	return gin.Default()
+}
+
+func startAccountAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger, sender outbound.EmailSender) {
+	accountFactory := factory.AccountFactory(db, logger, sender)
+
+	v1 := router.Group("/api/v1")
+	{
+		v1.GET("/accounts", accountFactory.FindAllAccounts)
+		v1.POST("/accounts", accountFactory.Add)
+		v1.GET("/accounts/:id", accountFactory.FindAccountById)
+		v1.GET("/accounts/:id/establishments", accountFactory.FindAllEstablishmentsByAccountId)
+	}
+
+}
+
+func startAppointmentAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger) {
+	appointmentFactory := factory.AppointmentFactory(db, logger)
+	v1 := router.Group("/api/v1")
+	{
+		v1.POST("/appointments", appointmentFactory.Add)
+		v1.GET("/appointments/:id/professional", appointmentFactory.GetAllAppointmentsByProfessionalId)
+		v1.GET("/appointments/:id", appointmentFactory.GetAppointmentById)
+	}
+
+}
+
+func startEstablishmentAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger) {
+	establishmentFactory := factory.EstablishmentFactory(db, logger)
+	v1 := router.Group("/api/v1")
+	{
+		v1.POST("/establishments", establishmentFactory.Add)
+		v1.GET("/establishments/:id", establishmentFactory.FindEstablishmentById)
+		v1.GET("/establishments/:id/professionals", establishmentFactory.GetAllProfessinalsByEstablishmentId)
+		v1.GET("/establishments/:id/report", establishmentFactory.GetEstablishmentReport)
+		v1.PUT("/establishments/:id/update", establishmentFactory.UpdateEstablishmentById)
+	}
+
+}
+
+func startProfessionalAvailabilityAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger) {
+	professionalsAvailabilityFactory := factory.ProfessionalAvailabilityFactory(db, logger)
+	v1 := router.Group("/api/v1")
+	{
+
+		v1.GET("/availability/:id/professional", middlewares.ValidateParamRequest(), professionalsAvailabilityFactory.GetProfessionalAvailabilityById)
+		v1.POST("/availability", professionalsAvailabilityFactory.Add)
+	}
+
+}
+
+func startProfessionalsAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger) {
+	professionalFactory := factory.ProfessionalFactory(db, logger)
+	v1 := router.Group("/api/v1")
+	{
+		v1.POST("/professionals", professionalFactory.Add)
+		v1.GET("/professionals/:id", professionalFactory.FindProfessionalById)
+		v1.PUT("/professionals/:id", professionalFactory.UpdateProfessionalById)
+	}
+}
+
+func startServicesAPI(router *gin.Engine, db *gorm.DB, logger *logrus.Logger) {
+	servicesFactory := factory.ServiceFactory(db, logger)
+	v1 := router.Group("/api/v1")
+	{
+		v1.POST("/services", servicesFactory.Add)
+		v1.GET("/services/:id", servicesFactory.FindServiceById)
+		v1.GET("/services/:id/all", servicesFactory.GetAllServicesByProfessionalId)
+	}
+
 }
 
 func configureMigration(config *domain.ServiceConfig, database *gorm.DB) {
