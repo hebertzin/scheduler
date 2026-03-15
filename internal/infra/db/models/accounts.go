@@ -8,7 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// account
 type Accounts struct {
 	gorm.Model
 	ID             uuid.UUID `gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`

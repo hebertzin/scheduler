@@ -17,6 +17,7 @@ type (
 	appointmentRequest struct {
 		ProfessionalID string `json:"professionalId" validate:"required"`
 		ServiceID      string `json:"serviceId" validate:"required"`
+		DayOfWeek      string `json:"dayOfWeek" validate:"required"`
 		StartTime      string `json:"startTime" validate:"required"`
 		EndTime        string `json:"endTime" validate:"required"`
 		Email          string `json:"email" validate:"required"`
@@ -52,6 +53,7 @@ func (h *AppointmentHandler) Add(ctx *gin.Context) {
 		ServiceId:      req.ServiceID,
 		StartTime:      req.StartTime,
 		EndTime:        req.EndTime,
+		DayOfWeek:      req.DayOfWeek,
 		Email:          req.Email,
 		Phone:          req.Phone,
 		Notes:          req.Notes,

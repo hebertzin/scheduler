@@ -40,7 +40,7 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 	}
 
 	account, _ := manager.repository.FindAccountByEmail(ctx, payload.Email)
-	if account == nil {
+	if account != nil {
 		return nil, core.Confilct(core.WithMessage("account already exists in the database"))
 	}
 
@@ -72,6 +72,7 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 		Message: body,
 	}
 
+	// this is sync (change to async later)
 	manager.emailProvider.Send(message)
 
 	manager.logger.Println("Account create and email sent successfully.", "account_use_case_manager")
