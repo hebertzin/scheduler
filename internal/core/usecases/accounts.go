@@ -10,23 +10,25 @@ import (
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type AccountManager struct {
 	repository outbound.AccountRepository
 	messaging  outbound.Publisher
+	hasher     outbound.Hasher
 	logger     *logrus.Logger
 }
 
 func NewAccount(
 	repository outbound.AccountRepository,
 	publisher outbound.Publisher,
+	hasher outbound.Hasher,
 	logger *logrus.Logger,
 ) inbound.AccountUseCase {
 	return &AccountManager{
 		repository: repository,
 		messaging:  publisher,
+		hasher:     hasher,
 		logger:     logger,
 	}
 }
@@ -44,13 +46,13 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 		return nil, core.Confilct(core.WithMessage("account already exists in the database"))
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
+	hash, err := manager.hasher.Hash(payload.Password)
 	if err != nil {
 		manager.logger.Error("Error generating password hash.", "account_use_case_manager", "err", err.Error())
 
 		return nil, core.Unexpected(core.WithMessage("error generating password hash"))
 	}
-	payload.Password = string(hash)
+	payload.Password = hash
 
 	account, err = manager.repository.Add(ctx, payload)
 	if err != nil {
