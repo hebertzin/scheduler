@@ -5,12 +5,11 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/eventconstants"
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/sirupsen/logrus"
 )
-
-const appointmentCreatedEventType = "appointment_created"
 
 type AppointmentManager struct {
 	repository          outbound.AppointmentRepository
@@ -55,7 +54,7 @@ func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appo
 	}
 
 	e := outbound.Event{
-		Type:    appointmentCreatedEventType,
+		Type:    eventconstants.AppointmentCreatedEventType,
 		Payload: appointment,
 	}
 

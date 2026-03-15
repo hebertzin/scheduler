@@ -6,13 +6,12 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/eventconstants"
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
-
-const accountCreatedEventType = "account_created"
 
 type AccountManager struct {
 	repository outbound.AccountRepository
@@ -61,7 +60,7 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 	}
 
 	e := outbound.Event{
-		Type:    accountCreatedEventType,
+		Type:    eventconstants.AccountCreatedEventType,
 		Payload: account.Email,
 	}
 
