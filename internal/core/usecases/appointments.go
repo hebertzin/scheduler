@@ -62,6 +62,11 @@ func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appo
 	if err != nil {
 		manager.logger.Println("Some error has been occurred publishing the message in broker.", "appointment_use_case_manager")
 
+		// CONSISTENCY ISSUE: at this point the appointment was already persisted in the database
+		// but the event failed to be published to the broker, leaving the system in an inconsistent state.
+		// The consumer will never process this appointment, and retrying the request will result in a CONFLICT error.
+		// TODO: implement the Outbox Pattern — persist the event in the same transaction as the appointment,
+		// and use a background worker (relay) to publish it to the broker, ensuring at-least-once delivery.
 		return nil, errors.Unexpected(errors.WithMessage("cannot publish the message in broker"))
 	}
 
