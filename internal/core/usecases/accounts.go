@@ -4,11 +4,11 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
 	"github.com/hebertzin/scheduler/internal/domain/eventconstants"
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
+	"github.com/hebertzin/scheduler/internal/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,24 +33,24 @@ func NewAccount(
 	}
 }
 
-func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account) (*domain.Account, *core.Exception) {
+func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account) (*domain.Account, *errors.Exception) {
 	isValidEmail := validateAccountEmail(payload.Email)
 	if !isValidEmail {
 		manager.logger.Error("Error validating email.", "account_use_case_manager")
 
-		return nil, core.BadRequest(core.WithMessage("invalid email"))
+		return nil, errors.BadRequest(errors.WithMessage("invalid email"))
 	}
 
 	account, _ := manager.repository.FindAccountByEmail(ctx, payload.Email)
 	if account != nil {
-		return nil, core.Confilct(core.WithMessage("account already exists in the database"))
+		return nil, errors.Confilct(errors.WithMessage("account already exists in the database"))
 	}
 
 	hash, err := manager.hasher.Hash(payload.Password)
 	if err != nil {
 		manager.logger.Error("Error generating password hash.", "account_use_case_manager", "err", err.Error())
 
-		return nil, core.Unexpected(core.WithMessage("error generating password hash"))
+		return nil, errors.Unexpected(errors.WithMessage("error generating password hash"))
 	}
 	payload.Password = hash
 
@@ -58,7 +58,7 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 	if err != nil {
 		manager.logger.Error("Error saving account to repository.", "account_use_case_manager", "err", err.Error())
 
-		return nil, core.Unexpected()
+		return nil, errors.Unexpected()
 	}
 
 	e := inbound.Event{
@@ -75,12 +75,12 @@ func (manager *AccountManager) Add(ctx context.Context, payload *domain.Account)
 	return account, nil
 }
 
-func (manager *AccountManager) FindAccountById(ctx context.Context, id string) (*domain.Account, *core.Exception) {
+func (manager *AccountManager) FindAccountById(ctx context.Context, id string) (*domain.Account, *errors.Exception) {
 	account, err := manager.repository.FindAccountById(ctx, id)
 	if err != nil {
 		manager.logger.Error("Error finding account by id.", "account_use_case_manager", "err", err.Error())
 
-		return nil, core.Unexpected(core.WithMessage("error finding account"), core.WithError(err))
+		return nil, errors.Unexpected(errors.WithMessage("error finding account"), errors.WithError(err))
 	}
 
 	manager.logger.Info("Account found successfully.", "account_use_case_manager")
@@ -88,12 +88,12 @@ func (manager *AccountManager) FindAccountById(ctx context.Context, id string) (
 	return account, nil
 }
 
-func (manager *AccountManager) FindAllAccounts(ctx context.Context) ([]domain.Account, *core.Exception) {
+func (manager *AccountManager) FindAllAccounts(ctx context.Context) ([]domain.Account, *errors.Exception) {
 	account, err := manager.repository.FindAllAccounts(ctx)
 	if err != nil {
 		manager.logger.Error("Error finding all accounts.", "account_use_case_manager", "err", err.Error())
 
-		return nil, core.Unexpected(core.WithMessage("some error has been ocurred"))
+		return nil, errors.Unexpected(errors.WithMessage("some error has been ocurred"))
 	}
 
 	manager.logger.Info("All accounts retrieved successfully.", "account_use_case_manager")
@@ -101,12 +101,12 @@ func (manager *AccountManager) FindAllAccounts(ctx context.Context) ([]domain.Ac
 	return account, nil
 }
 
-func (manager *AccountManager) FindAllEstablishmentsByAccountId(ctx context.Context, accountId string) ([]domain.Establishment, *core.Exception) {
+func (manager *AccountManager) FindAllEstablishmentsByAccountId(ctx context.Context, accountId string) ([]domain.Establishment, *errors.Exception) {
 	establishments, err := manager.repository.FindAllEstablishmentsByAccountId(ctx, accountId)
 	if err != nil {
 		manager.logger.Error("Error finding establishments by account id.", "account_use_case_manager", "err", err.Error())
 
-		return nil, core.Unexpected(core.WithMessage("some error has been ocurred"))
+		return nil, errors.Unexpected(errors.WithMessage("some error has been ocurred"))
 	}
 
 	manager.logger.Info("Establishments retrieved successfully.", "account_use_case_manager")

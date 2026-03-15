@@ -3,11 +3,11 @@ package usecases
 import (
 	"context"
 
-	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
 	"github.com/hebertzin/scheduler/internal/domain/eventconstants"
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
+	"github.com/hebertzin/scheduler/internal/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -32,25 +32,25 @@ func NewAppointment(
 	}
 }
 
-func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appointment) (*domain.Appointment, *core.Exception) {
+func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appointment) (*domain.Appointment, *errors.Exception) {
 	exists, err := manager.availabilityManager.ExistByStartAndEndTime(ctx, payload.StartTime, payload.EndTime)
 	if err != nil {
 		manager.logger.Error("Error checking schedule availability.", "use_case_manager", "err", err.Error())
 
-		return nil, core.Unexpected(core.WithMessage("error when verify availability"))
+		return nil, errors.Unexpected(errors.WithMessage("error when verify availability"))
 	}
 
 	if exists {
 		manager.logger.Error("Time slot not available, time slot already scheduled.", "use_case_manager")
 
-		return nil, core.Confilct(core.WithMessage("It was not possible to schedule."))
+		return nil, errors.Confilct(errors.WithMessage("It was not possible to schedule."))
 	}
 
 	appointment, err := manager.repository.Add(ctx, payload)
 	if err != nil {
 		manager.logger.Error("An error occurred while scheduling", "use_case_manager", "err", err.Error())
 
-		return nil, core.Unexpected(core.WithMessage("error creating appointment"), core.WithError(err))
+		return nil, errors.Unexpected(errors.WithMessage("error creating appointment"), errors.WithError(err))
 	}
 
 	e := inbound.Event{
@@ -65,12 +65,12 @@ func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appo
 	return appointment, nil
 }
 
-func (manager *AppointmentManager) GetAllAppointmentsByProfessionalId(ctx context.Context, professionalId string) ([]domain.Appointment, *core.Exception) {
+func (manager *AppointmentManager) GetAllAppointmentsByProfessionalId(ctx context.Context, professionalId string) ([]domain.Appointment, *errors.Exception) {
 	appointments, err := manager.repository.GetAllAppointmentsByProfessionalId(ctx, professionalId)
 	if err != nil {
 		manager.logger.Error("Error get all appointments by professional owner", "use_case_manager", "err", err.Error())
 
-		return nil, core.Unexpected(core.WithMessage("error get all appointment by professional id"), core.WithError(err))
+		return nil, errors.Unexpected(errors.WithMessage("error get all appointment by professional id"), errors.WithError(err))
 	}
 
 	manager.logger.Info("Appointments retrieved successfully.", "use_case_manager")
@@ -78,12 +78,12 @@ func (manager *AppointmentManager) GetAllAppointmentsByProfessionalId(ctx contex
 	return appointments, nil
 }
 
-func (manager *AppointmentManager) GetAppointmentById(ctx context.Context, appointmentId string) (*domain.Appointment, *core.Exception) {
+func (manager *AppointmentManager) GetAppointmentById(ctx context.Context, appointmentId string) (*domain.Appointment, *errors.Exception) {
 	appointment, err := manager.repository.GetAppointmentById(ctx, appointmentId)
 	if err != nil {
 		manager.logger.Error("Error get appointment detail", "use_case_manager", "err", err.Error())
 
-		return nil, core.Unexpected(core.WithMessage("error get appointment by id"), core.WithError(err))
+		return nil, errors.Unexpected(errors.WithMessage("error get appointment by id"), errors.WithError(err))
 	}
 
 	manager.logger.Info("Appointment retrieved successfully.", "use_case_manager")
@@ -91,12 +91,12 @@ func (manager *AppointmentManager) GetAppointmentById(ctx context.Context, appoi
 	return appointment, nil
 }
 
-func (manager *AppointmentManager) DeleteAppointment(ctx context.Context, appointmentId string) *core.Exception {
+func (manager *AppointmentManager) DeleteAppointment(ctx context.Context, appointmentId string) *errors.Exception {
 	err := manager.repository.DeleteAppointment(ctx, appointmentId)
 	if err != nil {
 		manager.logger.Error("Error deleting appointment", "use_case_manager", "err", err.Error())
 
-		return core.Unexpected(core.WithMessage("error get appointment by id"), core.WithError(err))
+		return errors.Unexpected(errors.WithMessage("error get appointment by id"), errors.WithError(err))
 	}
 
 	manager.logger.Info("Appointment deleted successfully.", "use_case_manager")
