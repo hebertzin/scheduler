@@ -5,12 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 )
 
 type (
 	AppointmentHandler struct {
 		BaseHandler
-		manager domain.AppointmentUseCase
+		manager inbound.AppointmentUseCase
 	}
 
 	appointmentRequest struct {
@@ -24,7 +25,7 @@ type (
 	}
 )
 
-func NewAppointment(manager domain.AppointmentUseCase) *AppointmentHandler {
+func NewAppointment(manager inbound.AppointmentUseCase) *AppointmentHandler {
 	return &AppointmentHandler{manager: manager}
 }
 

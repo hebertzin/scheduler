@@ -5,31 +5,33 @@ import (
 
 	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
+	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
 	"github.com/sirupsen/logrus"
 )
 
 type EstablishmentManager struct {
-	repository domain.EstablishmentRepository
+	repository outbound.EstablishmentRepository
 	logger     *logrus.Logger
 }
 
-func NewEstablishment(repository domain.EstablishmentRepository, logger *logrus.Logger) domain.EstablishmentUseCase {
+func NewEstablishment(repository outbound.EstablishmentRepository, logger *logrus.Logger) inbound.EstablishmentUseCase {
 	return &EstablishmentManager{repository: repository, logger: logger}
-}
-
-func (e *EstablishmentManager) FindEstablishmentById(ctx context.Context, id string) (*domain.Establishment, *core.Exception) {
-	establishment, err := e.repository.FindEstablishmentById(ctx, id)
-	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("error finding establishment"), core.WithError(err))
-	}
-
-	return establishment, nil
 }
 
 func (e *EstablishmentManager) Add(ctx context.Context, payload *domain.Establishment) (*domain.Establishment, *core.Exception) {
 	establishment, err := e.repository.Add(ctx, payload)
 	if err != nil {
 		return nil, core.Unexpected()
+	}
+
+	return establishment, nil
+}
+
+func (e *EstablishmentManager) FindEstablishmentById(ctx context.Context, id string) (*domain.Establishment, *core.Exception) {
+	establishment, err := e.repository.FindEstablishmentById(ctx, id)
+	if err != nil {
+		return nil, core.Unexpected(core.WithMessage("error finding establishment"), core.WithError(err))
 	}
 
 	return establishment, nil

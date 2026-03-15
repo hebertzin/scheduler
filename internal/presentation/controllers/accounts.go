@@ -5,12 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
+	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 )
 
 type (
 	AccountHandler struct {
 		BaseHandler
-		manager domain.AccountUseCase
+		manager inbound.AccountUseCase
 	}
 
 	accountRequest struct {
@@ -20,7 +21,7 @@ type (
 	}
 )
 
-func NewAccount(manager domain.AccountUseCase) *AccountHandler {
+func NewAccount(manager inbound.AccountUseCase) *AccountHandler {
 	return &AccountHandler{manager: manager}
 }
 
