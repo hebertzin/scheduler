@@ -35,11 +35,11 @@ func NewAccountCreatedConsumer(amqpURL, queueName string, sender outbound.EmailS
 
 	_, err = ch.QueueDeclare(
 		queueName,
-		true,  // durable
-		false, // auto delete
-		false, // exclusive
-		false, // no wait
-		nil,   // args
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
 		ch.Close()
@@ -70,12 +70,12 @@ func NewAccountCreatedConsumer(amqpURL, queueName string, sender outbound.EmailS
 func (c *AccountCreatedConsumer) Consume(ctx context.Context) error {
 	deliveries, err := c.channel.Consume(
 		c.queueName,
-		"",    // consumer name
-		false, // auto ack
-		false, // exclusive
-		false, // no local
-		false, // no wait
-		nil,   // args
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
 		return err
