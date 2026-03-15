@@ -58,7 +58,12 @@ func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appo
 		Payload: appointment,
 	}
 
-	_ = manager.messaging.Publish(ctx, e)
+	err = manager.messaging.Publish(ctx, e)
+	if err != nil {
+		manager.logger.Println("Some error has been occurred publishing the message in broker.", "appointment_use_case_manager")
+
+		return nil, errors.Unexpected(errors.WithMessage("cannot publish the message in broker"))
+	}
 
 	manager.logger.Info("Appointment created and message was published")
 
