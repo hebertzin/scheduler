@@ -42,8 +42,8 @@ func (b *Broker) Publish(ctx context.Context, event outbound.Event) error {
 
 	if err := b.ch.PublishWithContext(
 		ctx,
-		b.exchangeName,
-		b.routingKey,
+		b.publisherConfig.ExchangeName,
+		b.publisherConfig.RoutingKey,
 		false,
 		false,
 		amqp.Publishing{
