@@ -4,12 +4,13 @@ run:
   tests: true
   modules-download-mode: readonly
   allow-parallel-runners: true
-  go: '1.22'
+  go: "1.22"
 
 issues:
   exclude-use-default: false
 
 linters:
+  disable-all: true
   enable:
     - staticcheck
     - gosimple
@@ -17,5 +18,3 @@ linters:
     - typecheck
     - gofmt
     - goimports
-
-  disable-all: false
