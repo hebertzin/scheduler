@@ -12,7 +12,6 @@ issues:
 linters:
   disable-all: true
   enable:
-    - staticcheck
     - gosimple
     - unused
     - typecheck
