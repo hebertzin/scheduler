@@ -16,9 +16,10 @@ type Availability interface {
 	ExistByStartAndEndTime(ctx context.Context, startTime, endTime string) (bool, error)
 }
 
-func NewAvailability(repo outbound.AppointmentRepository) *AvailabilityManager {
+func NewAvailability(repo outbound.AppointmentRepository, logger *logrus.Logger) *AvailabilityManager {
 	return &AvailabilityManager{
-		repo: repo,
+		repo:   repo,
+		logger: logger,
 	}
 }
 
