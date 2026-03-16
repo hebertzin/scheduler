@@ -13,7 +13,7 @@ import (
 
 func AppointmentFactory(db *gorm.DB, logger *logrus.Logger, publisher outbound.Publisher) outbound.AppointmentController {
 	repo := repository.NewAppointmentRepository(db, logger)
-	availabilityManager := usecases.NewAvailability(repo)
+	availabilityManager := usecases.NewAvailability(repo, logger)
 	appointmentManager := usecases.NewAppointment(repo, availabilityManager, publisher, logger)
 
 	return controllers.NewAppointment(appointmentManager)

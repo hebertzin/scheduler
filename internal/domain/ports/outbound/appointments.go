@@ -2,6 +2,7 @@ package outbound
 
 import (
 	"context"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hebertzin/scheduler/internal/domain"
@@ -13,7 +14,7 @@ type (
 		GetAllAppointmentsByProfessionalId(ctx context.Context, professionalId string) ([]domain.Appointment, error)
 		GetAppointmentById(ctx context.Context, id string) (*domain.Appointment, error)
 		DeleteAppointment(ctx context.Context, id string) error
-		ExistsByStartAndEndTime(ctx context.Context, startTime string, endTime string) (bool, error)
+		ExistsByStartAndEndTime(ctx context.Context, startTime, endTime time.Time, dayOfWeek string) (bool, error)
 	}
 
 	AppointmentController interface {

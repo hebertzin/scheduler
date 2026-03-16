@@ -33,7 +33,7 @@ func NewAppointment(
 }
 
 func (manager *AppointmentManager) Add(ctx context.Context, payload *domain.Appointment) (*domain.Appointment, *errors.Exception) {
-	exists, err := manager.availabilityManager.ExistByStartAndEndTime(ctx, payload.StartTime, payload.EndTime)
+	exists, err := manager.availabilityManager.ExistByStartAndEndTime(ctx, payload.StartTime, payload.EndTime, payload.DayOfWeek)
 	if err != nil {
 		manager.logger.Error("Error checking schedule availability.", "use_case_manager", "err", err.Error())
 

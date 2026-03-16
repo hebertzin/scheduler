@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/hebertzin/scheduler/internal/domain"
 	"github.com/sirupsen/logrus"
@@ -57,15 +58,16 @@ func (repo *AppointmentDatabaseRepository) DeleteAppointment(ctx context.Context
 
 func (repo *AppointmentDatabaseRepository) ExistsByStartAndEndTime(
 	ctx context.Context,
-	startTime string,
-	endTime string,
+	startTime time.Time,
+	endTime time.Time,
+	dayOfWeek string,
 ) (bool, error) {
 
 	var count int64
 
 	err := repo.db.WithContext(ctx).
 		Model(&domain.Appointment{}).
-		Where("startTime = ? AND endTime = ?", startTime, endTime).
+		Where("day_of_week = ? AND start_time < ? AND end_time > ?", dayOfWeek, endTime, startTime).
 		Count(&count).Error
 
 	if err != nil {
