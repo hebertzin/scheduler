@@ -3,10 +3,10 @@ package usecases
 import (
 	"context"
 
-	"github.com/hebertzin/scheduler/internal/core"
 	"github.com/hebertzin/scheduler/internal/domain"
 	"github.com/hebertzin/scheduler/internal/domain/ports/inbound"
 	"github.com/hebertzin/scheduler/internal/domain/ports/outbound"
+	"github.com/hebertzin/scheduler/internal/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,33 +19,47 @@ func NewProfessional(repository outbound.ProfessionalsRepository, logger *logrus
 	return &ProfessionalsManager{repository: repository, logger: logger}
 }
 
-func (s *ProfessionalsManager) FindProfessionalById(ctx context.Context, id string) (*domain.Professionals, *core.Exception) {
-	professional, err := s.repository.FindProfessionalById(ctx, id)
+func (manager *ProfessionalsManager) FindProfessionalById(ctx context.Context, id string) (*domain.Professionals, *errors.Exception) {
+	professional, err := manager.repository.FindProfessionalById(ctx, id)
 	if err != nil {
-		return nil, core.Unexpected(core.WithMessage("error finding professional"), core.WithError(err))
+		manager.logger.Error("Error finding professional by id.", "professionals_use_case", "err", err.Error())
+
+		return nil, errors.Unexpected(errors.WithMessage("error finding professional"), errors.WithError(err))
 	}
+
+	manager.logger.Info("Professional found successfully.", "professionals_use_case")
 
 	return professional, nil
 }
 
-func (s *ProfessionalsManager) Add(ctx context.Context, payload *domain.Professionals) (*domain.Professionals, *core.Exception) {
+func (manager *ProfessionalsManager) Add(ctx context.Context, payload *domain.Professionals) (*domain.Professionals, *errors.Exception) {
 	if payload.Name == "" || payload.Role == "" || payload.EstablishmentId == "" {
-		return nil, core.BadRequest(core.WithMessage("some fields are missing"))
+		manager.logger.Error("Missing required fields to create professional.", "professionals_use_case")
+
+		return nil, errors.BadRequest(errors.WithMessage("some fields are missing"))
 	}
 
-	professional, err := s.repository.Add(ctx, payload)
+	professional, err := manager.repository.Add(ctx, payload)
 	if err != nil {
-		return nil, core.Unexpected()
+		manager.logger.Error("Error creating professional.", "professionals_use_case", "err", err.Error())
+
+		return nil, errors.Unexpected()
 	}
+
+	manager.logger.Info("Professional created successfully.", "professionals_use_case")
 
 	return professional, nil
 }
 
-func (s *ProfessionalsManager) UpdateProfessionalById(ctx context.Context, id string, professionalData *domain.Professionals) (*domain.Professionals, *core.Exception) {
-	professional, err := s.repository.UpdateProfessionalById(ctx, id, professionalData)
+func (manager *ProfessionalsManager) UpdateProfessionalById(ctx context.Context, id string, professionalData *domain.Professionals) (*domain.Professionals, *errors.Exception) {
+	professional, err := manager.repository.UpdateProfessionalById(ctx, id, professionalData)
 	if err != nil {
-		return nil, core.Unexpected()
+		manager.logger.Error("Error updating professional.", "professionals_use_case", "err", err.Error())
+
+		return nil, errors.Unexpected()
 	}
+
+	manager.logger.Info("Professional updated successfully.", "professionals_use_case")
 
 	return professional, nil
 }
