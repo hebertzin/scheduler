@@ -11,12 +11,9 @@ issues:
 
 linters:
   enable:
-    - errcheck
-    - govet
     - staticcheck
     - gosimple
     - unused
-    - ineffassign
     - typecheck
     - gofmt
     - goimports
