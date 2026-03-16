@@ -5,9 +5,9 @@ import "time"
 type Appointment struct {
 	ProfessionalId string    `json:"professionalId"`
 	ServiceId      string    `json:"serviceId"`
-	StartTime      string    `json:"startTime"`
+	StartTime      time.Time `json:"startTime"`
+	EndTime        time.Time `json:"endTime"`
 	DayOfWeek      string    `json:"dayOfWeek"`
-	EndTime        string    `json:"endTime"`
 	Email          string    `json:"email"`
 	Phone          string    `json:"phone"`
 	Notes          string    `json:"notes"`
